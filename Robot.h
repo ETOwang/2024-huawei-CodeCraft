@@ -36,7 +36,7 @@ public:
     stack<pair<int, int>> getRoute(pair<int, int> start);
 
     //进行移动操作（如果需要）
-    void move();
+    void move(int time);
 
     //执行向上操作
     void up();

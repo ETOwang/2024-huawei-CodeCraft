@@ -13,8 +13,8 @@ void Init()
 {
 
 }
-//每一帧读入，并更新相应信息
-void Input()
+//每一帧读入，并更新相应信息，返回当前帧信息
+int Input()
 {
 }
 
@@ -33,10 +33,10 @@ int main()
     //流程：输入，调度，移动
     Init();
     while (true){
-        Input();
+        int frame=Input();
         controller.dispatch();
         for(int i = 0; i < robot_num; i ++)
-            robots[i].move();
+            robots[i].move(frame);
         for (int i = 0; i < ship_num; ++i) {
             ships[i].move();
         }
