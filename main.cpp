@@ -38,7 +38,7 @@ int main()
         for(int i = 0; i < robot_num; i ++)
             robots[i].move(frame);
         for (int i = 0; i < ship_num; ++i) {
-            ships[i].move();
+            ships[i].move(frame);
         }
         finish();
     }

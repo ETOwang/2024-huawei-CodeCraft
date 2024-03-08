@@ -19,11 +19,13 @@ public:
     int goods;
     //轮船容积
     int capacity;
+    //预计完成当前任务时间
+    int time;
     //初始化
     Ship(int id, int status);
     Ship();
     //进行对轮船的操作（如果需要）
-    void move();
+    void move(int t);
 
     //进行移动到某个泊位操作
     void ship(int id);
