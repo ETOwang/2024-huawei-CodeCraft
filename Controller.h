@@ -24,7 +24,7 @@ public:
     Controller(Robot* robots,int robot_num,Map* map,Ship* ships,int ship_num,Berth* berths,int berth_num);
     Controller();
     //主调度函数，为所有目标分配任务（如果需要）
-    void dispatch();
+    void dispatch(int time);
     int assignBerth(Robot* robot);
     int getdis(Coord robot,Coord item);
     bool collision(Robot* robot1,Robot* robot2);

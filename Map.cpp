@@ -70,7 +70,7 @@ stack<Coord> Map::getRoute_BFS(Coord src, Coord targ){
         que.pop();
         for(auto it:diff){
             Coord nxt = Coord{nw[0] + it[0], nw[1] + it[1]};
-            if(this -> isOutOfBound(nxt)) continue;
+            if(!this -> isGround(nxt)) continue;
             if(vis[nxt[0]][nxt[1]] == vis_uniq_tag) continue;
             prev[nxt[0]][nxt[1]] = nw;
             doPush(nxt);

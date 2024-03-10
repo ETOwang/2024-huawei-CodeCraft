@@ -20,7 +20,8 @@ Controller::Controller(Robot *robots, int robot_num, Map *map, Ship *ships, int 
     this->berth_num = berth_num;
 }
 
-void Controller::dispatch() {
+void Controller::dispatch(int time) {
+    game_map->updateItem(time);
     for (int i = 0; i < robot_num; ++i) {
         if (robots[i].task_type == TaskIdle) {
             int berth = assignBerth(&robots[i]);
@@ -37,6 +38,8 @@ void Controller::dispatch() {
                     }
                 }
             }
+            if(best_item == nullptr) continue;
+            best_item->setInvalid();
             robots[i].task_type=TaskItem;
             robots[i].route=game_map->getRoute(robots[i].pos,best_item->pos);
             robots[i].berth_pos=berths[berth].pos;

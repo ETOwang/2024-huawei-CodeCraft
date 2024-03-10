@@ -25,9 +25,7 @@ for(frames){
     Input();
     Update(); --equals-> {
         for(new goods){
-            for(robots){
-                robot.addCandidate(new goods);
-            }
+            addItem(new goods);
         }
     }
     Controller.Dispatch(); --equals-> {

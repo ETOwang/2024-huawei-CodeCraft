@@ -112,12 +112,20 @@ int main() {
     finish();
     while (true) {
         int frame = Input();
-        controller.dispatch();
+        controller.dispatch(frame);
         for (int i = 0; i < robot_num; i++)
             robots[i].move();
         for (int i = 0; i < ship_num; ++i) {
             ships[i].move();
         }
+        /*
+        for (int i = 0; i < robot_num; i++){
+            if(robots[i].task_type==TaskBerth){
+                if(robots[i].route.empty()){
+                    robots[i].task_type=TaskIdle;
+                }
+            }
+        }*/
         finish();
     }
 }

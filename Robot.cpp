@@ -45,7 +45,7 @@ void Robot::move() {
     if (route.empty()){
         if (this->task_type == TaskItem){//到达货物
             printf("get %d\n", this->id);
-        } else{
+        } else if (this->task_type == TaskBerth){
             printf("pull %d\n", this->id);
         }
     }
