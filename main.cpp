@@ -56,7 +56,7 @@ int Input() {
         int value;
         scanf(" %d %d %d", &pos[0], &pos[1], &value);
         Item item = Item(frame, pos, value);
-        game_map.addItem(item, pos);
+        game_map.addItem(item);
     }
     //输入机器人状态
     for (int i = 0; i < robot_num; ++i) {
@@ -94,13 +94,11 @@ int main()
     while (true){
         int frame = Input();
         controller.dispatch();
-        /*
         for(int i = 0; i < robot_num; i ++)
-            robots[i].move(frame);
+            robots[i].move();
         for (int i = 0; i < ship_num; ++i) {
             ships[i].move(frame);
         }
-        */
         finish();
     }
 }
