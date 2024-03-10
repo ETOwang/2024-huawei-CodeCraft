@@ -10,7 +10,7 @@ Robot::Robot(int id, Coord pos){
     this -> pos = pos;
 }
 Robot::Robot(){
-    ;
+
 }
 
 //根据目标设置路径

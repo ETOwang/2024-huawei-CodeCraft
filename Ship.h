@@ -14,9 +14,6 @@ public:
     int status;
     //轮船目标泊位
     int target_id;
-
-    //轮船目标泊位编号
-    int tar;
     //轮船已有货物
     int item_count;
     //轮船容积
@@ -36,8 +33,8 @@ public:
     //进行售卖操作
     void go();
 
-
-
+    //进行卸货行为
+    void clear();
 };
 
 

@@ -4,7 +4,6 @@
 #include "Berth.h"
 #include "Map.h"
 #include "Controller.h"
-#include "Ship.h"
 using namespace std;
 const int map_size = 200;
 const int robot_num = 10;

@@ -15,6 +15,9 @@ Ship::Ship(){
 }
 
 void Ship::move(int t) {
+    if(status!=1){
+        return;
+    }
    if(item_count==capacity){
        go();
    } else if(t>time){
@@ -28,4 +31,8 @@ void Ship::go() {
 
 void Ship::ship(int id) {
     printf("ship %d %d\n", this->id,id);
+}
+
+void Ship::clear() {
+    item_count==0;
 }
