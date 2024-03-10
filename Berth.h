@@ -7,7 +7,8 @@
 
 #include <stack>
 #include "Utils.h"
-
+#include <vector>
+#include "Item.h"
 class Berth {
 public:
     //泊位id
@@ -18,9 +19,8 @@ public:
     int transport_time;
     //装载速度
     int loading_speed;
-
     //现有货物
-    stack<int> items;
+    vector<Item*> goods;
     //泊位上的船
     int ship_id;
 
