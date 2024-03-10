@@ -4,25 +4,29 @@
 
 #ifndef INC_24_HUAWEI_CONTROLLER_H
 #define INC_24_HUAWEI_CONTROLLER_H
-
+#include <map>
 #include "Utils.h"
 #include "Item.h"
 #include "Map.h"
 #include "Robot.h"
 #include "Ship.h"
+#include "Berth.h"
 class Controller {
 public:
     Map* game_map;
     Robot* robots;
     Ship* ships;
+    Berth* berths;
     int robot_num;
     int ships_num;
-    Controller(Robot* robots,int robot_num,Map* map,Ship* ships,int ship_num);
+    int berth_num;
+    map<int,int> used;
+    Controller(Robot* robots,int robot_num,Map* map,Ship* ships,int ship_num,Berth* berths,int berth_num);
     Controller();
     //主调度函数，为所有目标分配任务（如果需要）
     void dispatch();
     int assignBerth(Robot* robot);
-    int getdis(Robot* robot,Item* item);
+    int getdis(Coord robot,Coord item);
     bool collision(Robot* robot1,Robot* robot2);
 };
 

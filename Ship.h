@@ -18,14 +18,14 @@ public:
     int item_count;
     //轮船容积
     int capacity;
-    //轮船完成当前任务时间点
-    int time;
+    //判断是否在路上
+    bool is_on_way;
     //初始化
     Ship(int id, int status);
     Ship();
 
     //进行对轮船的操作（如果需要）
-    void move(int t);
+    void move();
 
     //进行移动到某个泊位操作
     void ship(int id);

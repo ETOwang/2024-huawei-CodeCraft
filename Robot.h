@@ -21,7 +21,8 @@ public:
     Coord pos;
     //机器人状态
     int status;
-    
+    //上一步（用于处理碰撞）
+    Coord pre_pos;
     //任务类型
     RobotTaskType task_type;
     //TaskItem 任务的目标

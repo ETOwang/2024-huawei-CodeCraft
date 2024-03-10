@@ -28,6 +28,8 @@ void Map::updateItem(int time){
     while (!items.empty()){
         if(!items.front().isValid(time)){
             items.pop_front();
+        } else{
+            break;
         }
     }
 }

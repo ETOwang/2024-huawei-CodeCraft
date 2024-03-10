@@ -14,14 +14,22 @@ Robot::Robot(){
 }
 
 void Robot::move() {
+    if(route.empty()){
+        return;
+    }
     Coord next_pos = route.top();
-    route.pop();
     int cur_pos_x = this->pos[0];
     int cur_pos_y = this->pos[1];
     int next_pos_x = next_pos[0];
     int next_pos_y = next_pos[1];
+    if(abs(cur_pos_x-next_pos_x)+ abs(cur_pos_y-next_pos_y)>=2){
+        route.push(pre_pos);
+        return;
+    }
+    route.pop();
     //到物品
     // 0:右移；1左移； 2上移；3下移；
+    pre_pos=next_pos;
     if (cur_pos_x < next_pos_x){//下移
         printf("move %d 3\n", this->id);
     } else if (cur_pos_x > next_pos_x){//上

@@ -3,25 +3,80 @@
 //
 
 #include "Controller.h"
+#include <random>
 
 Controller::Controller() {
 
 }
 
-Controller::Controller(Robot *robots, int robot_num, Map *map, Ship *ships,int ship_num) {
+Controller::Controller(Robot *robots, int robot_num, Map *map, Ship *ships, int ship_num, Berth *berths,
+                       int berth_num) {
     this->robots = robots;
     this->robot_num = robot_num;
     this->game_map = map;
-    this->ships=ships;
-    this->ships_num=ship_num;
+    this->ships = ships;
+    this->ships_num = ship_num;
+    this->berths = berths;
+    this->berth_num = berth_num;
 }
 
 void Controller::dispatch() {
-
+    for (int i = 0; i < robot_num; ++i) {
+        if (robots[i].task_type == TaskIdle) {
+            int berth = assignBerth(&robots[i]);
+            Item *best_item = nullptr;
+            for (auto &item: game_map->items) {
+                if (best_item == nullptr) {
+                    best_item = &item;
+                } else {
+                    if (best_item->value /
+                         (getdis(robots[i].pos, best_item->pos) + getdis(best_item->pos, berths[berth].pos)) <
+                         item.value/
+                          (getdis(robots[i].pos, item.pos) + getdis(item.pos, berths[berth].pos)) ){
+                      best_item=&item;
+                    }
+                }
+            }
+            robots[i].task_type=TaskItem;
+            robots[i].route=game_map->getRoute(robots[i].pos,best_item->pos);
+            robots[i].berth_pos=berths[berth].pos;
+            robots[i].item_pos=best_item->pos;
+        } else if(robots[i].task_type==TaskItem){
+            if(robots[i].route.empty()){
+                robots[i].task_type=TaskBerth;
+                robots[i].route=game_map->getRoute(robots[i].pos,robots[i].berth_pos);
+            }
+        }
+    }
+    for (int i = 0; i < ships_num; ++i) {
+      if(ships[i].status==1&&ships[i].target_id==-1&&!ships[i].is_on_way){
+          ships[i].target_id=used.begin()->first;
+      }
+    }
 }
 
 int Controller::assignBerth(Robot *robot) {
-
+    if (used.size() == 5) {
+        for (auto &item: used) {
+            if (item.second == 1) {
+                item.second++;
+                return item.first;
+            }
+        }
+    }
+    std::random_device rd;  // 随机设备，用于获取种子
+    std::mt19937 gen(rd());  // 随机数引擎，使用Mersenne Twister算法
+    std::uniform_int_distribution<int> dist(0, 9);  // 均匀分布
+    int random = dist(gen);
+    while (used.count(random) && used[random] == 2) {
+        random = dist(gen);
+    }
+    if (used.count(random)) {
+        used[random]++;
+    } else {
+        used[random] = 1;
+    }
+    return random;
 }
 
 bool Controller::collision(Robot *robot1, Robot *robot2) {
@@ -36,7 +91,7 @@ bool Controller::collision(Robot *robot1, Robot *robot2) {
     return false;
 }
 
-int Controller::getdis(Robot *robot, Item *item) {
-    auto route = game_map->getRoute(robot->pos, item->pos);
+int Controller::getdis(Coord robot, Coord item) {
+    auto route = game_map->getRoute(robot, item);
     return route.size();
 }

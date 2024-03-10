@@ -8,18 +8,20 @@
 Ship::Ship(int id, int status){
     this -> id = id;
     this -> status = status;
+    this->is_on_way= false;
 }
 Ship::Ship(){
-
+    this->is_on_way= false;
 }
-void Ship::move(int t) {
+void Ship::move() {
     if(status!=1){
         return;
     }
    if(item_count==capacity){
        go();
-   } else if(t>time){
+   } else if(!is_on_way&&target_id!=-1){
        ship(target_id);
+       is_on_way= true;
    }
 }
 
