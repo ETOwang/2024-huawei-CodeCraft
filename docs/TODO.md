@@ -20,6 +20,56 @@
 
 走
 
+```cpp
+for(frames){
+    Input();
+    Update(); --equals-> {
+        for(new goods){
+            for(robots){
+                robot.addCandidate(new goods);
+            }
+        }
+    }
+    Controller.Dispatch(); --equals-> {
+        for(robots){
+            if(robot.task_type == TaskIdle){
+                berth = assignBerth(robot);
+                //找物品
+                best_item = {};
+                for(robot.candidate){
+                    if(eval(dis = getdis(robot, candidate) + getdis(candidate, berth), value = candidate.value) is good enough) {
+                        best_item = candidate;
+                    }
+                }
+                robot.task_type == TaskItem
+                robot.route = getRoute(...);
+            } else if(robot.task_type == TaskItem){
+                // TBD. [optional]
+                // eval(candidate) to get better items
+            } else if(robot.task_type == TaskBerth){
+                // just walk
+            }
+
+        }
+    }
+    for(robots){
+        if(collides(robot.route, robot2.route)) {
+            // TBD. [optional]
+            // either stop and wait
+            // or turn back
+            // > advanced: bfs to nearest open space
+        }
+        robot.Output(); --equals-> {
+            out(robot.route.top());
+            robot.route.pop();
+        }
+    }
+    for(ships){
+        ship.Output();
+    }
+}
+```
+
 
 
 
@@ -28,28 +78,3 @@
 杂七杂八的优化：
 
 + 最后可以尽快让船出发
-
----
-
-以下是可以写的函数：
-
-```cpp
-stack<Coord> Map::getRoute(Coord src, Coord target){
-	; // returns a path (src, target]
-}
-
-int Map::getDis(Coord src, Coord target){
-	; // returns getRoute(...).size;
-}
-
-void Controller::dispatch(){
-    ;
-    /*
-    for(all robots){
-		;
-    }
-    */
-}
-
-input / output
-```
