@@ -13,7 +13,7 @@ Robot robots[robot_num];
 Ship ships[ship_num];
 Controller controller;
 Map game_map;
-Berth berths[ship_num];
+Berth berths[berth_num];
 //初始化函数，读入初始化信息并创建相应对象
 void Init() {
     int index = 0;
