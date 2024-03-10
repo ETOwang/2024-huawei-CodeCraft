@@ -8,7 +8,8 @@
 using namespace std;
 const int map_size = 200;
 const int robot_num = 10;
-const int ship_num = 10;
+const int ship_num = 5;
+const int berth_num = 10;
 Robot robots[robot_num];
 Ship ships[ship_num];
 Controller controller;
@@ -58,16 +59,16 @@ int Input() {
         game_map.addItem(item, pos);
     }
     //输入机器人状态
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < robot_num; ++i) {
         int item_carry, state;
         scanf(" %d %d %d %d", &item_carry, &robots[i].pos[0], &robots[i].pos[1], &state);
         robots[i].status = state;
     }
     //输入轮船状态
-    for(int i = 0; i < 5; i++){
+    for(int i = 0; i < ship_num; i++){
         scanf(" %d %d", &ships[i].status, &ships[i].target_id);
     }
-    for(int i = 0; i < 10; i++){
+    for(int i = 0; i < berth_num; i++){
         berths[i].update();
     }
     //读入"OK"
