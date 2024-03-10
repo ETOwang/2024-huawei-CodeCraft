@@ -67,6 +67,9 @@ int Input() {
     for(int i = 0; i < 5; i++){
         scanf(" %d %d", &ships[i].status, &ships[i].target_id);
     }
+    for(int i = 0; i < 10; i++){
+        berths[i].update();
+    }
     //读入"OK"
     string temp;
     getline(cin, temp);
