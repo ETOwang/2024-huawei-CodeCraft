@@ -54,7 +54,7 @@ int Input()
         Coord pos;
         int value;
         scanf("%d%d%d\n", &pos[0], &pos[1], &value);
-        Item item = Item(pos, value);
+        Item item = Item(frame, pos, value);
         game_map.addItem(item, pos);
     }
     //输入机器人状态
