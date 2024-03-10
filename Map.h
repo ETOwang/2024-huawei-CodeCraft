@@ -17,6 +17,7 @@ public:
     //当前帧数
     int time;
     //地图
+    //note：map里只存储 '.', '*', '#', 'B' 四种字符，机器人所在位置存储为空地 '.'
     char map[SIZE][SIZE];
     //物品列表
     queue<Item> items[SIZE][SIZE];
