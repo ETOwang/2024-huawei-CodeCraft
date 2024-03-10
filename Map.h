@@ -20,11 +20,11 @@ public:
     //note：map里只存储 '.', '*', '#', 'B' 四种字符，机器人所在位置存储为空地 '.'
     char map[SIZE][SIZE];
     //物品列表
-    queue<Item> items[SIZE][SIZE];
+    queue<Item> items;
     //添加一个物品
-    void addItem(Item item, Coord pos);
+    void addItem(Item item);
     //对当前位置进行检查，清理无用物品
-    void updateItem(Coord pos, int time);
+    void updateItem(int time);
 
     //规划一条路径
     stack<Coord> getRoute(Coord src, Coord targ);

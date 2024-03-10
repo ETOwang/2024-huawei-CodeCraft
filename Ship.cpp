@@ -9,11 +9,9 @@ Ship::Ship(int id, int status){
     this -> id = id;
     this -> status = status;
 }
-
 Ship::Ship(){
-    ;
-}
 
+}
 void Ship::move(int t) {
     if(status!=1){
         return;

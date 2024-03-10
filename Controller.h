@@ -6,11 +6,12 @@
 #define INC_24_HUAWEI_CONTROLLER_H
 
 #include "Utils.h"
-
+#include "Item.h"
+#include "Map.h"
 class Controller {
 public:
     //标记是否已为所有机器人和轮船分配任务
-    bool flag;
+
 
     //主调度函数，为所有目标分配任务（如果需要）
     void dispatch();

@@ -20,16 +20,16 @@ void Robot::move() {
     int cur_pos_y = this->pos[1];
     int next_pos_x = next_pos[0];
     int next_pos_y = next_pos[1];
-    //到物品 0:右移；1：左移； 2：上移；3：下移；
-    printf("move %d ", this->id);
-    if (cur_pos_x < next_pos_x){//右移
-        printf("0\n");
-    } else if (cur_pos_x > next_pos_x){//左
-        printf("1\n");
-    } else if (cur_pos_y < next_pos_y){//上
-        printf("2\n");
-    } else if (cur_pos_y > next_pos_y){//下
-        printf("3\n");
+    //到物品
+    // 0:右移；1左移； 2上移；3下移；
+    if (cur_pos_x < next_pos_x){//下移
+        printf("move %d 3\n", this->id);
+    } else if (cur_pos_x > next_pos_x){//上
+        printf("move %d 2\n", this->id);
+    } else if (cur_pos_y < next_pos_y){//右
+        printf("move %d 0\n", this->id);
+    } else if (cur_pos_y > next_pos_y){//左
+        printf("move %d 1\n", this->id);
     } else {
         return;
     }
