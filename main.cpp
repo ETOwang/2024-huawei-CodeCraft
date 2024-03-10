@@ -4,7 +4,6 @@
 #include "Berth.h"
 #include "Map.h"
 #include "Controller.h"
-#include "Ship.h"
 using namespace std;
 const int size=200;
 const int robot_num = 10;
@@ -54,7 +53,7 @@ int Input()
         Coord pos;
         int value;
         scanf("%d%d%d\n", &pos[0], &pos[1], &value);
-        Item item = Item(pos, value);
+        Item item = Item(frame,pos, value);
         game_map.addItem(item, pos);
     }
     //输入机器人状态
@@ -70,22 +69,22 @@ int Input()
     return frame;
 }
 
-void finish(){
+void finish() {
     printf("OK\n");
     fflush(stdout);
 }
+
 /*
  * 优化方向：
  * 1.交互快结束时让港口轮船立刻出发，避免浪费
  * 2.对机器人交叉路径进行碰撞处理
  * 3.尽可能利用轮船运力
  */
-int main()
-{
+int main() {
     //流程：输入，调度，移动
     Init();
-    while (true){
-        int frame=Input();
+    while (true) {
+        int frame = Input();
         controller.dispatch();
         /*
         for(int i = 0; i < robot_num; i ++)

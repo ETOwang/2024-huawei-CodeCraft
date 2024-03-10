@@ -9,6 +9,9 @@
 #include "Utils.h"
 #include <vector>
 #include "Item.h"
+#include "Ship.h"
+#include <queue>
+
 class Berth {
 public:
     //泊位id
@@ -20,13 +23,18 @@ public:
     //装载速度
     int loading_speed;
     //现有货物
-    vector<Item*> goods;
+    queue<Item *> goods;
     //泊位上的船
-    int ship_id;
+    Ship *ship;
 
     //初始化
     Berth(int id, Coord pos, int transport_time, int loading_speed);
+
     Berth();
+
+    void addItem(Item *item);
+
+    void update();
 };
 
 
