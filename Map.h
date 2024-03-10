@@ -20,7 +20,6 @@ public:
     char map[SIZE][SIZE];
     //物品列表
     queue<Item> items[SIZE][SIZE];
-
     //添加一个物品
     void addItem(Item item, Coord pos);
     //对当前位置进行检查，清理无用物品

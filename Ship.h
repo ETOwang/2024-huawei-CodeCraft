@@ -4,9 +4,8 @@
 
 #ifndef INC_24_HUAWEI_SHIP_H
 #define INC_24_HUAWEI_SHIP_H
-
-#include "Utils.h"
-
+#include <iostream>
+using namespace std;
 class Ship {
 public:
     //轮船id
@@ -16,6 +15,8 @@ public:
     //轮船目标泊位
     int target_id;
 
+    //轮船目标泊位编号
+    int tar;
     //轮船已有货物
     int item_count;
     //轮船容积

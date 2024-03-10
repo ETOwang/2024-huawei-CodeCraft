@@ -27,12 +27,9 @@ public:
     //TaskItem 任务的目标
     Coord item_pos;
     //TaskBerth 任务的目标
-    int item_value;
     Coord berth_pos;
-
     //当前任务路径（包括起始点和结束点）
     stack<Coord> route;
-
     //初始化
     Robot(int id, Coord pos);
     Robot();
