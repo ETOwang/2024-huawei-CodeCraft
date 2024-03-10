@@ -9,13 +9,20 @@
 
 class Item {
 public:
+    //物品的生成时间
+    int time;
     //物品位置
     Coord pos;
     //物品直接价值
     int value;
 
     //初始化函数
-    Item(Coord pos, int value);
+    Item(int time, Coord pos, int value);
+
+    //判断是否存在
+    bool isValid(int time);
+    //强制删除
+    void setInvalid();
 };
 
 
