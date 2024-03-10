@@ -7,3 +7,15 @@
 void Controller::dispatch(){
     ;
 }
+
+int Controller::assignBerth(Robot *robot) {
+
+}
+
+bool Controller::collision(Robot *robot1, Robot *robot2) {
+
+}
+
+int Controller::getdis(Robot *robot, Item *item) {
+
+}

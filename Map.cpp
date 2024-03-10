@@ -21,13 +21,13 @@ bool Map::isGround(Coord pos){
 
 //添加一个物品
 void Map::addItem(Item item){
-    this -> items.push(item);
+    this -> items.push_back(item);
 }
 //对当前位置进行检查，清理无用物品
 void Map::updateItem(int time){
     while (!items.empty()){
         if(!items.front().isValid(time)){
-            items.pop();
+            items.pop_front();
         }
     }
 }

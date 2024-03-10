@@ -8,13 +8,18 @@
 #include "Utils.h"
 #include "Item.h"
 #include "Map.h"
+#include "Robot.h"
 class Controller {
 public:
+    Map* game_map;
+    Robot* robots;
     //标记是否已为所有机器人和轮船分配任务
-
 
     //主调度函数，为所有目标分配任务（如果需要）
     void dispatch();
+    int assignBerth(Robot* robot);
+    int getdis(Robot* robot,Item* item);
+    bool collision(Robot* robot1,Robot* robot2);
 };
 
 
