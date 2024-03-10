@@ -6,7 +6,7 @@
 #include "Controller.h"
 #include "Ship.h"
 using namespace std;
-const int size=200;
+const int map_size = 200;
 const int robot_num = 10;
 const int ship_num = 10;
 Robot robots[robot_num];
@@ -16,57 +16,60 @@ Map game_map;
 Berth berths[ship_num];
 //初始化函数，读入初始化信息并创建相应对象
 void Init() {
-    int index=0;
-    for (int i = 0; i < size; ++i) {
-        char c;
-        for (int j = 0; j < size-1; ++j) {
-            scanf("%c",&c);
-            if(c=='A'){
-               robots[index]=Robot(index,{i,j});
+    int index = 0;
+    for (int i = 0; i < map_size; ++i) {
+        for (int j = 0; j < map_size; ++j) {
+            char c;
+            scanf(" %c", &c);
+            if(c == 'A'){
+               robots[index] = Robot(index, {i, j});
                index++;
+               //地图数组里，将机器人所在位置视为空地
+               c = '.';
             }
-            game_map.map[i][j]=c;
+            game_map.map[i][j] = c;
         }
-        scanf("%c\n",&c);
-        game_map.map[i][size-1]=c;
     }
     for (int i = 0; i < ship_num; ++i) {
         int id, x, y, time, velocity;
-        scanf("%d%d%d%d%d",&id,&x,&y,&time,&velocity);
-        berths[i]= Berth(id,{x,y},time,velocity);
+        scanf(" %d %d %d %d %d", &id, &x, &y, &time, &velocity);
+        berths[i] = Berth(id, {x, y}, time, velocity);
     }
     int cap;
-    scanf("%d",&cap);
+    scanf(" %d",&cap);
     for (int i = 0; i < ship_num; ++i) {
-        ships[i].capacity=cap;
+        ships[i].capacity = cap;
     }
+    //读入"OK"
     string temp;
-    getline(cin,temp);
+    getline(cin, temp);
 }
 //每一帧读入，并更新相应信息，返回当前帧信息
-int Input()
-{
+int Input() {
     int frame, temp_money;
     int item_add;
-    scanf("%d%d\n", &frame, &temp_money);
-    scanf("%d\n", &item_add);
+    scanf(" %d %d", &frame, &temp_money);
+    scanf(" %d", &item_add);
     for (int i = 0; i < item_add; ++i) {
         Coord pos;
         int value;
-        scanf("%d%d%d\n", &pos[0], &pos[1], &value);
+        scanf(" %d %d %d", &pos[0], &pos[1], &value);
         Item item = Item(frame, pos, value);
         game_map.addItem(item, pos);
     }
     //输入机器人状态
     for (int i = 0; i < 10; ++i) {
         int item_carry, state;
-        scanf("%d%d%d%d\n", &item_carry, &robots[i].pos[0], &robots[i].pos[1], &state);
+        scanf(" %d %d %d %d", &item_carry, &robots[i].pos[0], &robots[i].pos[1], &state);
         robots[i].status = state;
     }
     //输入轮船状态
     for(int i = 0; i < 5; i++){
-        scanf("%d%d\n", &ships[i].status, &ships[i].target_id);
+        scanf(" %d %d", &ships[i].status, &ships[i].target_id);
     }
+    //读入"OK"
+    string temp;
+    getline(cin, temp);
     return frame;
 }
 
@@ -85,7 +88,7 @@ int main()
     //流程：输入，调度，移动
     Init();
     while (true){
-        int frame=Input();
+        int frame = Input();
         controller.dispatch();
         /*
         for(int i = 0; i < robot_num; i ++)
