@@ -5,6 +5,7 @@
 #ifndef INC_24_HUAWEI_BERTH_H
 #define INC_24_HUAWEI_BERTH_H
 
+#include <stack>
 #include "Utils.h"
 
 class Berth {

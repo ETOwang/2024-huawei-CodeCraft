@@ -3,3 +3,17 @@
 //
 
 #include "Robot.h"
+
+//初始化
+Robot::Robot(int id, Coord pos){
+    this -> id = id;
+    this -> pos = pos;
+}
+Robot::Robot(){
+    ;
+}
+
+//根据目标设置路径
+void Robot::setRoute(Coord target){
+    // do something.
+}

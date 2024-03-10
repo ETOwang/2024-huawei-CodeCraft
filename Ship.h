@@ -24,6 +24,7 @@ public:
     //初始化
     Ship(int id, int status);
     Ship();
+    /*
     //进行对轮船的操作（如果需要）
     void move(int t);
 
@@ -32,6 +33,7 @@ public:
 
     //进行售卖操作
     void go();
+    */
 };
 
 

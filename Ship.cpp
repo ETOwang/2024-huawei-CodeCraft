@@ -3,3 +3,13 @@
 //
 
 #include "Ship.h"
+
+
+Ship::Ship(int id, int status){
+    this -> id = id;
+    this -> status = status;
+}
+
+Ship::Ship(){
+    ;
+}
