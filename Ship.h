@@ -8,6 +8,8 @@
 using namespace std;
 class Ship {
 public:
+    //时间不够，强制出发
+    bool force_to_go;
     //轮船id
     int id;
     //轮船状态

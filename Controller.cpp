@@ -49,12 +49,29 @@ void Controller::dispatch(int time) {
                 robots[i].task_type=TaskBerth;
                 robots[i].route=game_map->getRoute(robots[i].pos,robots[i].berth_pos);
             }
+        } else{
+
+            if(robots[i].route.empty()){
+                robots[i].task_type=TaskIdle;
+                for (int j = 0; j < berth_num; ++j) {
+                    if(berths[j].pos==robots[i].berth_pos){
+                        for (auto& item:game_map->items) {
+                           if(item.pos==robots[i].item_pos){
+                               berths[j].addItem(&item);
+                               break;
+                           }
+                        }
+                    }
+                }
+            }
         }
     }
+    //船舶需要船的引用
     for (int i = 0; i < ships_num; ++i) {
-      if(ships[i].status==1&&ships[i].target_id==-1&&!ships[i].is_on_way){
-          ships[i].target_id=used.begin()->first;
-      }
+        if(ships[i].status==1&&ships[i].target_id==-1&&!ships[i].is_on_way){
+            ships[i].target_id=used.begin()->first;
+            berths[used.begin()->first].ship=&ships[i];
+        }
     }
 }
 
