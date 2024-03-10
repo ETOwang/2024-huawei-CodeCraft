@@ -1,10 +1,13 @@
 #include <iostream>
 #include "Robot.h"
+#include "Ship.h"
+#include "Berth.h"
+#include "Map.h"
 #include "Controller.h"
 using namespace std;
 
 const int robot_num = 10;
-const int ship_num=10;
+const int ship_num = 10;
 Robot robots[robot_num];
 Ship  ships[ship_num];
 Controller controller;
@@ -35,11 +38,13 @@ int main()
     while (true){
         int frame=Input();
         controller.dispatch();
+        /*
         for(int i = 0; i < robot_num; i ++)
             robots[i].move(frame);
         for (int i = 0; i < ship_num; ++i) {
             ships[i].move(frame);
         }
+        */
         finish();
     }
 }

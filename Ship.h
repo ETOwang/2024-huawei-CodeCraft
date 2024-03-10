@@ -5,7 +5,7 @@
 #ifndef INC_24_HUAWEI_SHIP_H
 #define INC_24_HUAWEI_SHIP_H
 
-#include "Berth.h"
+#include "Utils.h"
 
 class Ship {
 public:
@@ -14,13 +14,13 @@ public:
     //轮船状态
     int status;
     //轮船目标泊位
-    Berth &berth;
+    int target_id;
+
     //轮船已有货物
-    int goods;
+    int item_count;
     //轮船容积
     int capacity;
-    //预计完成当前任务时间
-    int time;
+
     //初始化
     Ship(int id, int status);
     Ship();
