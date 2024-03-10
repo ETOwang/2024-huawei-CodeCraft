@@ -9,12 +9,16 @@
 #include "Item.h"
 #include "Map.h"
 #include "Robot.h"
+#include "Ship.h"
 class Controller {
 public:
     Map* game_map;
     Robot* robots;
-    //标记是否已为所有机器人和轮船分配任务
-
+    Ship* ships;
+    int robot_num;
+    int ships_num;
+    Controller(Robot* robots,int robot_num,Map* map,Ship* ships,int ship_num);
+    Controller();
     //主调度函数，为所有目标分配任务（如果需要）
     void dispatch();
     int assignBerth(Robot* robot);

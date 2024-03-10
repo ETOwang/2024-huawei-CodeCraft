@@ -4,7 +4,6 @@
 #include "Berth.h"
 #include "Map.h"
 #include "Controller.h"
-#include "Ship.h"
 using namespace std;
 const int map_size = 200;
 const int robot_num = 10;
@@ -44,6 +43,7 @@ void Init() {
     //读入"OK"
     string temp;
     getline(cin, temp);
+    controller=Controller(robots,robot_num,&game_map,ships,ship_num);
 }
 //每一帧读入，并更新相应信息，返回当前帧信息
 int Input() {
