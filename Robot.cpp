@@ -15,5 +15,5 @@ Robot::Robot(){
 
 //根据目标设置路径
 void Robot::setRoute(Coord target){
-    // do something.
+
 }
