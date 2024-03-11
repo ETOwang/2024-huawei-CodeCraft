@@ -20,8 +20,6 @@ public:
     int item_count;
     //轮船容积
     int capacity;
-    //判断是否在路上
-    bool is_on_way;
     //初始化
     Ship(int id, int status);
     Ship();

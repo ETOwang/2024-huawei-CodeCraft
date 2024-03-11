@@ -61,7 +61,6 @@ void Controller::dispatch(int time) {
                 }
             }
         } else{
-
             if(robots[i].route.empty()){
                 robots[i].task_type=TaskIdle;
                 for (int j = 0; j < berth_num; ++j) {
@@ -82,18 +81,24 @@ void Controller::dispatch(int time) {
             berths[i].ship->force_to_go= true;
         }
     }
+    /*
     for (int i = 0; i < robot_num; ++i) {
         for (int j = 0; j < robot_num; ++j) {
             if (collision(&robots[i], &robots[j])){
-                Controller::deal_collision();
+                deal_collision();
             }
         }
-    }
+    }*/
     //船舶需要船的引用
     for (int i = 0; i < ships_num; ++i) {
-        if(ships[i].status==1&&ships[i].target_id==-1&&!ships[i].is_on_way){
-            ships[i].target_id=used.begin()->first;
-            berths[used.begin()->first].ship=&ships[i];
+        if(ships[i].status==1&&ships[i].target_id==-1){
+            for (auto berth:used) {
+                if(berths[berth.first].ship== nullptr){
+                    berths[berth.first].ship=&ships[i];
+                    ships[i].target_id=berth.first;
+                    break;
+                }
+            }
         }
     }
 }
@@ -147,5 +152,8 @@ void deal_collision(){
 
 int Controller::getdis(Coord robot, Coord item) {
     auto route = game_map->getRoute(robot, item);
+    if(route.size()==0){
+        return 1;
+    }
     return route.size();
 }
