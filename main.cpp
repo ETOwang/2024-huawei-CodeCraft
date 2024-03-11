@@ -83,9 +83,6 @@ int Input() {
     for (int i = 0; i < ship_num; i++) {
         scanf("%d%d", &ships[i].status, &ships[i].target_id);
     }
-    for (int i = 0; i < berth_num; i++) {
-        berths[i].update();
-    }
     getchar();
     //读入"OK"
     string temp;
@@ -117,6 +114,9 @@ int main() {
             robots[i].move();
         for (int i = 0; i < ship_num; ++i) {
             ships[i].move();
+        }
+        for (int i = 0; i < berth_num; i++) {
+            berths[i].update();
         }
         finish();
     }

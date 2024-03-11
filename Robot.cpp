@@ -8,9 +8,10 @@
 Robot::Robot(int id, Coord pos){
     this -> id = id;
     this -> pos = pos;
+    this->berth_pos={-1,-1};
 }
 Robot::Robot(){
-
+    this->berth_pos={-1,-1};
 }
 
 void Robot::move() {

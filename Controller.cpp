@@ -21,12 +21,14 @@ Controller::Controller(Robot *robots, int robot_num, Map *map, Ship *ships, int 
 }
 
 void Controller::dispatch(int time) {
-    game_map->updateItem(time);
     for (int i = 0; i < robot_num; ++i) {
         if (robots[i].task_type == TaskIdle) {
             int berth = assignBerth(&robots[i]);
             Item *best_item = nullptr;
             for (auto &item: game_map->items) {
+                if(!item.isValid(time)){
+                    continue;
+                }
                 if (best_item == nullptr) {
                     best_item = &item;
                 } else {
@@ -38,7 +40,10 @@ void Controller::dispatch(int time) {
                     }
                 }
             }
-            if(best_item == nullptr) continue;
+            if(best_item == nullptr){
+                robots[i].berth_pos=berths[berth].pos;
+                continue;
+            }
             best_item->setInvalid();
             robots[i].task_type=TaskItem;
             robots[i].route=game_map->getRoute(robots[i].pos,best_item->pos);
@@ -48,8 +53,15 @@ void Controller::dispatch(int time) {
             if(robots[i].route.empty()){
                 robots[i].task_type=TaskBerth;
                 robots[i].route=game_map->getRoute(robots[i].pos,robots[i].berth_pos);
+                for (auto& item:game_map->items) {
+                    if(item.pos==robots->item_pos){
+                        item.setInvalid();
+                        break;
+                    }
+                }
             }
         } else{
+
             if(robots[i].route.empty()){
                 robots[i].task_type=TaskIdle;
                 for (int j = 0; j < berth_num; ++j) {
@@ -63,6 +75,11 @@ void Controller::dispatch(int time) {
                     }
                 }
             }
+        }
+    }
+    for (int i = 0; i < berth_num; ++i) {
+        if(berths[i].transport_time+time>=14000){
+            berths[i].ship->force_to_go= true;
         }
     }
     for (int i = 0; i < robot_num; ++i) {
@@ -82,6 +99,13 @@ void Controller::dispatch(int time) {
 }
 
 int Controller::assignBerth(Robot *robot) {
+    if(robot->berth_pos[0]!=-1){
+        for (int i = 0; i < berth_num; ++i) {
+            if(berths[i].pos==robot->berth_pos){
+                return i;
+            }
+        }
+    }
     if (used.size() == 5) {
         for (auto &item: used) {
             if (item.second == 1) {

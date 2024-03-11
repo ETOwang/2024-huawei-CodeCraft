@@ -19,6 +19,10 @@ void Ship::move() {
     if(status!=1){
         return;
     }
+    if(!is_on_way&&force_to_go){
+        go();
+        is_on_way= true;
+    }
    if(item_count==capacity){
        go();
        clear();

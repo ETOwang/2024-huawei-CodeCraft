@@ -31,7 +31,4 @@ void Berth::update() {
             break;
         }
     }
-    if(ship->item_count==ship->capacity){
-        ship= nullptr;
-    }
 }
