@@ -28,6 +28,7 @@ public:
     int assignBerth(Robot* robot);
     int getdis(Coord robot,Coord item);
     bool collision(Robot* robot1,Robot* robot2);
+    void deal_collision();
 };
 
 

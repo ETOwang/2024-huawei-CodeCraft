@@ -42,7 +42,7 @@ void Init() {
     }
     for (int i = 0; i < berth_num; ++i) {
         int id, x, y, time, velocity;
-        scanf(" %d %d %d %d %d", &id, &x, &y, &time, &velocity);
+        scanf("%d%d%d%d%d", &id, &x, &y, &time, &velocity);
         berths[i] = Berth(id, {x, y}, time, velocity);
     }
     int cap;
@@ -51,7 +51,7 @@ void Init() {
         ships[i].capacity = cap;
     }
     //读入"OK"
-    char *s=(char *) malloc(3* sizeof(char ));
+    char *s=(char *) malloc(3* sizeof(char));
     scanf("%s",s);
     free(s);
     controller = Controller(robots, robot_num, &game_map, ships, ship_num, berths, berth_num);

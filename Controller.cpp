@@ -50,7 +50,6 @@ void Controller::dispatch(int time) {
                 robots[i].route=game_map->getRoute(robots[i].pos,robots[i].berth_pos);
             }
         } else{
-
             if(robots[i].route.empty()){
                 robots[i].task_type=TaskIdle;
                 for (int j = 0; j < berth_num; ++j) {
@@ -63,6 +62,13 @@ void Controller::dispatch(int time) {
                         }
                     }
                 }
+            }
+        }
+    }
+    for (int i = 0; i < robot_num; ++i) {
+        for (int j = 0; j < robot_num; ++j) {
+            if (collision(&robots[i], &robots[j])){
+                Controller::deal_collision();
             }
         }
     }
@@ -109,6 +115,10 @@ bool Controller::collision(Robot *robot1, Robot *robot2) {
         return true;
     }
     return false;
+}
+
+void deal_collision(){
+    //TODO;
 }
 
 int Controller::getdis(Coord robot, Coord item) {
