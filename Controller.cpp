@@ -53,6 +53,7 @@ void Controller::dispatch(int time) {
         } else if (robots[i].task_type == TaskItem) {
             if (robots[i].route.empty()) {
                 robots[i].task_type = TaskBerth;
+                robots[i].setRoute(robots[i].berth_pos);
                 robots[i].route = game_map->getRoute(robots[i].pos, robots[i].berth_pos);
                 for (auto &item: game_map->items) {
                     if (item.pos == robots->item_pos) {
@@ -78,10 +79,10 @@ void Controller::dispatch(int time) {
         }
     }
     for (int i = 0; i < berth_num; ++i) {
-        if (time > 10000) {
-            berths[i].ship->force_to_go = true;
+        if(berths[i].ship== nullptr){
+            continue;
         }
-        if (berths[i].transport_time + time >= 14000) {
+        if (berths[i].transport_time + time >= 15000) {
             berths[i].ship->force_to_go = true;
         }
     }
@@ -96,6 +97,9 @@ void Controller::dispatch(int time) {
                 if (next1 == robots[j].pos && next2 == robots[i].pos) {
                     robots[i].route.push(robots[i].pre_pos.top());
                     robots[i].pre_pos.pop();
+                    if(robots[i].pre_pos.empty()){
+                        continue;
+                    }
                     robots[i].route.push(robots[i].pre_pos.top());
                     robots[i].pre_pos.pop();
                     continue;

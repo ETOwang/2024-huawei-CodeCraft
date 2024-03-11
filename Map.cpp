@@ -25,16 +25,18 @@ void Map::addItem(Item item){
 }
 //对当前位置进行检查，清理无用物品
 void Map::updateItem(int time){
-    while (!items.empty()){
-        if(!items.front().isValid(time)){
-            items.pop_front();
-        } else{
+    for (auto item = items.begin(); item !=items.end() ; ) {
+        if((*item).isValid(time)){
             break;
+        } else{
+            if((*item).time>0){
+                item=items.erase(item);
+            } else{
+                item++;
+            }
         }
     }
 }
-
-
 
 //寻路
 stack<Coord> Map::getRoute(Coord src, Coord targ){
