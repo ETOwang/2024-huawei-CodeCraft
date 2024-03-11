@@ -46,6 +46,7 @@ void Controller::dispatch(int time) {
             }
             best_item->setInvalid();
             robots[i].task_type=TaskItem;
+            robots[i].setRoute(best_item->pos);
             robots[i].route=game_map->getRoute(robots[i].pos,best_item->pos);
             robots[i].berth_pos=berths[berth].pos;
             robots[i].item_pos=best_item->pos;
@@ -77,23 +78,39 @@ void Controller::dispatch(int time) {
         }
     }
     for (int i = 0; i < berth_num; ++i) {
+        if(time>10000){
+            berths[i].ship->force_to_go= true;
+        }
         if(berths[i].transport_time+time>=14000){
             berths[i].ship->force_to_go= true;
         }
     }
-    /*
     for (int i = 0; i < robot_num; ++i) {
-        for (int j = 0; j < robot_num; ++j) {
+        for (int j = i+1; j < robot_num; ++j) {
+            if(i==j){
+                continue;
+            }
             if (collision(&robots[i], &robots[j])){
-                deal_collision();
+                    auto next1 = robots[i].route.top();
+                    auto next2 = robots[j].route.top();
+                    if (next1 == next2) {
+                        robots[i].route.push(robots[i].pos);
+                        continue;
+                    }
+                    if (next1 == robots[j].pos && next2 == robots[i].pos) {
+                        robots[i].route.push(robots[i].pre_pos.top());
+                        robots[i].pre_pos.pop();
+                        robots[i].route.push(robots[i].pre_pos.top());
+                        robots[i].pre_pos.pop();
+                    }
             }
         }
-    }*/
+    }
     //船舶需要船的引用
     for (int i = 0; i < ships_num; ++i) {
         if(ships[i].status==1&&ships[i].target_id==-1){
             for (auto berth:used) {
-                if(berths[berth.first].ship== nullptr){
+                if(berths[berth.first].ship== nullptr||berths[berth.first].ship==&ships[i]){
                     berths[berth.first].ship=&ships[i];
                     ships[i].target_id=berth.first;
                     break;
@@ -135,6 +152,9 @@ int Controller::assignBerth(Robot *robot) {
 }
 
 bool Controller::collision(Robot *robot1, Robot *robot2) {
+    if(robot1->route.empty()||robot2->route.empty()){
+        return false;
+    }
     auto next1 = robot1->route.top();
     auto next2 = robot2->route.top();
     if (next1 == next2) {
@@ -146,9 +166,7 @@ bool Controller::collision(Robot *robot1, Robot *robot2) {
     return false;
 }
 
-void deal_collision(){
-    //TODO;
-}
+
 
 int Controller::getdis(Coord robot, Coord item) {
     auto route = game_map->getRoute(robot, item);

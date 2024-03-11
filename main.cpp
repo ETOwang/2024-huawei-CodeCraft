@@ -58,6 +58,9 @@ void Init() {
     for (int i = 0; i < robot_num; ++i) {
         robots[i].task_type=TaskIdle;
     }
+    for (int i = 0; i < ship_num; ++i) {
+        ships[i].id=i;
+    }
 }
 
 //每一帧读入，并更新相应信息，返回当前帧信息

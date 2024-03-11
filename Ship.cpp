@@ -12,6 +12,7 @@ Ship::Ship(int id, int status){
 }
 Ship::Ship(){
     force_to_go= false;
+    canShip= true;
 }
 void Ship::move() {
     if(status!=1){
@@ -19,12 +20,21 @@ void Ship::move() {
     }
     if(force_to_go){
         go();
+        clear();
+        canShip= true;
+        canGo= false;
+        canShip= true;
+        return;
     }
    if(item_count==capacity){
        go();
        clear();
-   } else if(target_id!=-1){
+       canShip= true;
+       canGo= false;
+   } else if(canShip&&target_id!=-1){
        ship(target_id);
+       canShip= false;
+       canGo= true;
    }
 }
 
@@ -37,5 +47,5 @@ void Ship::ship(int id) {
 }
 
 void Ship::clear() {
-    item_count==0;
+    item_count=0;
 }

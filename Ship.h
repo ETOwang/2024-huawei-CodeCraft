@@ -8,6 +8,10 @@
 using namespace std;
 class Ship {
 public:
+    //记录是否可以执行ship操作
+    bool canShip;
+    //记录是否可以执行go操作
+    bool canGo;
     //时间不够，强制出发
     bool force_to_go;
     //轮船id
