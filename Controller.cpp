@@ -48,14 +48,12 @@ void Controller::dispatch(int time) {
             }
             best_item->setInvalid();
             robots[i].task_type = TaskItem;
-        //  robots[i].setRoute(best_item->pos);
             robots[i].route = game_map->getRoute(robots[i].pos, best_item->pos);
             robots[i].berth_pos = berths[berth].pos;
             robots[i].item_pos = best_item->pos;
         } else if (robots[i].task_type == TaskItem) {
             if (robots[i].route.empty()) {
                 robots[i].task_type = TaskBerth;
-            //  robots[i].setRoute(robots[i].berth_pos);
                 robots[i].route = game_map->getRoute(robots[i].pos, robots[i].berth_pos);
                 for (auto &item: game_map->items) {
                     if (item.pos == robots->item_pos) {

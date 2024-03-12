@@ -4,12 +4,12 @@
 
 #ifndef INC_24_HUAWEI_MAP_H
 #define INC_24_HUAWEI_MAP_H
-
+#include <iostream>
 #include <queue>
 #include <stack>
 #include "Utils.h"
 #include "Item.h"
-
+#include <map>
 const int SIZE = 200;
 
 class Map {
@@ -25,7 +25,6 @@ public:
     void addItem(Item item);
     //对当前位置进行检查，清理无用物品
     void updateItem(int time);
-
     //规划一条路径
     vector<Coord> getRoute(Coord src, Coord targ);
     vector<Coord> getRoute_BFS(Coord src, Coord targ);
