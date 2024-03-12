@@ -35,7 +35,7 @@ void Controller::dispatch(int time) {
                 if (best_item == nullptr) {
                     best_item = &item;
                 } else {
-                    double eval = item.value / pow((double)getdis(robots[i].pos, item.pos) + getdis(item.pos, berths[berth].pos), 1.2);
+                    double eval = item.value / pow((double)getdis(robots[i].pos, item.pos) + getdis(item.pos, berths[berth].pos), 2);
                     if (best_eval < eval) {
                         best_item = &item;
                         best_eval = eval;
@@ -128,7 +128,7 @@ void Controller::dispatch(int time) {
                     exit.push_back(robots[now_k].pos);
                 }
                 // 避开要避让的机器人将要走的路
-                const int retreat_length = 20;
+                const int retreat_length = 30;
                 for(int k = 1; k <= retreat_length; k ++) {
                     if(k > robots[now_j].route.size()) break;
                     exit.push_back(*(robots[now_j].route.end() - k));
