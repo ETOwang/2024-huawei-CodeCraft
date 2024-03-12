@@ -27,6 +27,7 @@ void Controller::dispatch(int time) {
         if (robots[i].task_type == TaskIdle) {
             int berth = assignBerth(&robots[i]);
             Item *best_item = nullptr;
+            double best_eval = -1;
             for (auto &item: game_map->items) {
                 if (!item.isValid(time)) {
                     continue;
@@ -34,11 +35,10 @@ void Controller::dispatch(int time) {
                 if (best_item == nullptr) {
                     best_item = &item;
                 } else {
-                    if (best_item->value /
-                        (getdis(robots[i].pos, best_item->pos) + getdis(best_item->pos, berths[berth].pos)) <
-                        item.value /
-                        (getdis(robots[i].pos, item.pos) + getdis(item.pos, berths[berth].pos))) {
+                    double eval = item.value / pow((double)getdis(robots[i].pos, item.pos) + getdis(item.pos, berths[berth].pos), 1.2);
+                    if (best_eval < eval) {
                         best_item = &item;
+                        best_eval = eval;
                     }
                 }
             }
@@ -101,6 +101,7 @@ void Controller::dispatch(int time) {
                         fprintf(log_fp, "Frame %d: isCollision(%d, %d)\nRobot %d: wait\n", time, now_i, now_j, now_i);
                     }
                 });
+                break;
             }
             if (isSwap(&robots[now_i], &robots[now_j])) {
                 /*
@@ -127,7 +128,7 @@ void Controller::dispatch(int time) {
                     exit.push_back(robots[now_k].pos);
                 }
                 // 避开要避让的机器人将要走的路
-                const int retreat_length = 8;
+                const int retreat_length = 20;
                 for(int k = 1; k <= retreat_length; k ++) {
                     if(k > robots[now_j].route.size()) break;
                     exit.push_back(*(robots[now_j].route.end() - k));
