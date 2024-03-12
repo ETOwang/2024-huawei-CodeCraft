@@ -2,8 +2,10 @@
 // Created by 15461 on 2024/3/8.
 //
 
-#include "Controller.h"
 #include <random>
+#include <algorithm>
+
+#include "Controller.h"
 
 Controller::Controller() {
 
@@ -46,14 +48,14 @@ void Controller::dispatch(int time) {
             }
             best_item->setInvalid();
             robots[i].task_type = TaskItem;
-            robots[i].setRoute(best_item->pos);
+        //  robots[i].setRoute(best_item->pos);
             robots[i].route = game_map->getRoute(robots[i].pos, best_item->pos);
             robots[i].berth_pos = berths[berth].pos;
             robots[i].item_pos = best_item->pos;
         } else if (robots[i].task_type == TaskItem) {
             if (robots[i].route.empty()) {
                 robots[i].task_type = TaskBerth;
-                robots[i].setRoute(robots[i].berth_pos);
+            //  robots[i].setRoute(robots[i].berth_pos);
                 robots[i].route = game_map->getRoute(robots[i].pos, robots[i].berth_pos);
                 for (auto &item: game_map->items) {
                     if (item.pos == robots->item_pos) {
@@ -86,12 +88,17 @@ void Controller::dispatch(int time) {
             berths[i].ship->force_to_go = true;
         }
     }
+    array<int, 10> random_order{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    random_shuffle(random_order.begin(), random_order.end());
     for (int i = 0; i < robot_num; ++i) {
-        for (int j = 0; j < robot_num; ++j) {
-            if (i == j) {
-                continue;
+        int now_i = random_order[i];
+        for (int j = 0; j < i; ++j) {
+            int now_j = random_order[j];
+            if (isCollision(&robots[now_i], &robots[now_j])) {
+                robots[now_i].route.push_back(robots[now_i].pos);
             }
-            if (collision(&robots[i], &robots[j])) {
+            if (isSwap(&robots[now_i], &robots[now_j])) {
+                /*
                 auto next1 = robots[i].route.top();
                 auto next2 = robots[j].route.top();
                 if (next1 == robots[j].pos && next2 == robots[i].pos) {
@@ -106,9 +113,35 @@ void Controller::dispatch(int time) {
                 }
                 if (next1 == next2) {
                     robots[i].route.push(robots[i].pos);
+                }*/
+                vector<Coord> ban;
+                // 不能撞到已经避过障的机器人
+                for(int k = 0; k <= i; k++) {
+                    int now_k = random_order[k];
+                    ban.push_back(robots[now_k].pos);
                 }
-
+                // 避开要避让的机器人将要走的路
+                const int retreat_length = 100;
+                for(int k = 1; k <= retreat_length; k ++) {
+                    if(k > robots[now_j].route.size()) break;
+                    ban.push_back(*(robots[now_j].route.end() - k));
+                }
+                vector<Coord> result = game_map -> getFreeSpace(robots[now_i].pos, ban);
+                for(auto it : result) {
+                    robots[now_i].route.push_back(it);
+                }
+                // 尝试等一下来避免卡死
+            //  robots[now_j].route.push_back(robots[now_j].pos);
+                break;
             }
+        }
+    }
+    for (int i = 0; i < robot_num; ++i) {
+        Coord nw = robots[i].pos;
+        Coord dest = robots[i].route.empty() ? nw : *--robots[i].route.end();
+        if(abs(nw[0] - dest[0]) + abs(nw[1] - dest[1]) >= 2) {
+            vector<Coord> path = game_map -> getRoute(nw, dest);
+            for(auto it : path) robots[i].route.push_back(it);
         }
     }
     //船舶需要船的引用
@@ -156,22 +189,6 @@ int Controller::assignBerth(Robot *robot) {
     return random;
 }
 
-bool Controller::collision(Robot *robot1, Robot *robot2) {
-    if (robot1->route.empty() || robot2->route.empty()) {
-        return false;
-    }
-    auto next1 = robot1->route.top();
-    auto next2 = robot2->route.top();
-    if (next1 == next2) {
-        return true;
-    }
-    if (next1 == robot2->pos && next2 == robot1->pos) {
-        return true;
-    }
-    return false;
-}
-
-
 int Controller::getdis(Coord robot, Coord item) {
     auto route = game_map->getRoute(robot, item);
     if (route.size() == 0) {
@@ -179,3 +196,22 @@ int Controller::getdis(Coord robot, Coord item) {
     }
     return route.size();
 }
+
+bool Controller::isCollision(Robot *robot1, Robot *robot2) {
+    auto next1 = robot1->route.empty() ? robot1->pos : *--robot1->route.end();
+    auto next2 = robot2->route.empty() ? robot2->pos : *--robot2->route.end();
+    if (next1 == next2) {
+        return true;
+    }
+    return false;
+}
+
+bool Controller::isSwap(Robot *robot1, Robot *robot2) {
+    auto next1 = robot1->route.empty() ? robot1->pos : *--robot1->route.end();
+    auto next2 = robot2->route.empty() ? robot2->pos : *--robot2->route.end();
+    if (next1 == robot2->pos && next2 == robot1->pos) {
+        return true;
+    }
+    return false;
+}
+

@@ -114,8 +114,9 @@ int main() {
     while (true) {
         int frame = Input();
         controller.dispatch(frame);
-        for (int i = 0; i < robot_num; i++)
+        for (int i = 0; i < robot_num; i++){
             robots[i].move();
+        }
         for (int i = 0; i < ship_num; ++i) {
             ships[i].move();
         }

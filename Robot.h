@@ -6,7 +6,7 @@
 #define INC_24_HUAWEI_ROBOT_H
 
 #include <iostream>
-#include <stack>
+#include <vector>
 #include "Utils.h"
 
 enum RobotTaskType{
@@ -21,8 +21,7 @@ public:
     Coord pos;
     //机器人状态
     int status;
-    //已走步骤（用于处理碰撞）
-    stack<Coord> pre_pos;
+
     //任务类型
     RobotTaskType task_type;
     //TaskItem 任务的目标
@@ -30,12 +29,10 @@ public:
     //TaskBerth 任务的目标
     Coord berth_pos;
     //当前任务路径（包括起始点和结束点）
-    stack<Coord> route;
+    vector<Coord> route;
     //初始化
     Robot(int id, Coord pos);
     Robot();
-    //根据目标设置路径
-    void setRoute(Coord target);
     void move();
 };
 

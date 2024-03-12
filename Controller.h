@@ -27,8 +27,8 @@ public:
     void dispatch(int time);
     int assignBerth(Robot* robot);
     int getdis(Coord robot,Coord item);
-    bool collision(Robot* robot1,Robot* robot2);
-    void deal_collision();
+    bool isCollision(Robot* robot1,Robot* robot2);
+    bool isSwap(Robot* robot1,Robot* robot2);
 };
 
 

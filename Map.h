@@ -27,9 +27,10 @@ public:
     void updateItem(int time);
 
     //规划一条路径
-    stack<Coord> getRoute(Coord src, Coord targ);
-    stack<Coord> getRoute_BFS(Coord src, Coord targ);
-    stack<Coord> getRoute_Astar(Coord src, Coord targ);
+    vector<Coord> getRoute(Coord src, Coord targ);
+    vector<Coord> getRoute_BFS(Coord src, Coord targ);
+    vector<Coord> getRoute_Astar(Coord src, Coord targ);
+    vector<Coord> getFreeSpace(Coord src, vector<Coord> ban);
 
 
     //一些帮助函数

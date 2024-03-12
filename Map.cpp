@@ -3,6 +3,7 @@
 //
 
 #include <cstring>
+#include <algorithm>
 #include "Map.h"
 
 bool Map::isOutOfBound(Coord pos){
@@ -39,56 +40,123 @@ void Map::updateItem(int time){
 }
 
 //寻路
-stack<Coord> Map::getRoute(Coord src, Coord targ){
+vector<Coord> Map::getRoute(Coord src, Coord targ){
     return this -> getRoute_BFS(src, targ);
 }
 
-stack<Coord> Map::getRoute_BFS(Coord src, Coord targ){
-    const static Coord diff[4] = {Coord{+1, 0}, Coord{-1, 0}, Coord{0, +1}, Coord{0, -1}};
-    //保存上一个位置
-    static Coord prev[SIZE][SIZE];
-    //标记是否bfs过。用唯一tag代替初始化
-    static int vis[SIZE][SIZE], vis_uniq_tag = 0;
+
+//保存上一个位置
+static Coord __prev[SIZE][SIZE];
+//标记是否bfs过。用唯一tag代替初始化
+static int __vis[SIZE][SIZE], __vis_uniq_tag = 0;
+
+
+vector<Coord> Map::getRoute_BFS(Coord src, Coord targ){
+    array<Coord, 4> diff = {Coord{+1, 0}, Coord{-1, 0}, Coord{0, +1}, Coord{0, -1}};
     static queue<Coord> que;
 
     //更新：唯一tag
-    if(!vis_uniq_tag){
-        std::memset(vis, 0, sizeof(vis));
+    if(!__vis_uniq_tag){
+        std::memset(__vis, 0, sizeof(__vis));
     }
-    vis_uniq_tag ++;
+    __vis_uniq_tag ++;
 
     //清空
     while(que.size()) que.pop();
 
 
     auto doPush = [](Coord pos){
-        vis[pos[0]][pos[1]] = vis_uniq_tag;
+        __vis[pos[0]][pos[1]] = __vis_uniq_tag;
         que.push(pos);
     };
     //BFS
     doPush(src);
-    while(que.size() && (vis[targ[0]][targ[1]] != vis_uniq_tag)){
+    while(que.size() && (__vis[targ[0]][targ[1]] != __vis_uniq_tag)){
         Coord nw = que.front();
         que.pop();
         for(auto it:diff){
             Coord nxt = Coord{nw[0] + it[0], nw[1] + it[1]};
             if(!this -> isGround(nxt)) continue;
-            if(vis[nxt[0]][nxt[1]] == vis_uniq_tag) continue;
-            prev[nxt[0]][nxt[1]] = nw;
+            if(__vis[nxt[0]][nxt[1]] == __vis_uniq_tag) continue;
+            __prev[nxt[0]][nxt[1]] = nw;
             doPush(nxt);
         }
     }
     //回溯
-    if(vis[targ[0]][targ[1]] != vis_uniq_tag) return stack<Coord> {};
-    stack<Coord> result;
-    for(Coord nw = targ; nw != src; nw = prev[nw[0]][nw[1]]){
-        result.push(nw);
+    if(__vis[targ[0]][targ[1]] != __vis_uniq_tag) return vector<Coord> {};
+    vector<Coord> result;
+    for(Coord nw = targ; nw != src; nw = __prev[nw[0]][nw[1]]){
+        result.push_back(nw);
     }
     return result;
 }
 
-stack<Coord> Map::getRoute_Astar(Coord src, Coord targ){
+vector<Coord> Map::getRoute_Astar(Coord src, Coord targ){
     // do something.
-    return stack<Coord>{};
+    return vector<Coord>{};
 }
 
+vector<Coord> Map::getFreeSpace(Coord src, vector<Coord> ban){
+    array<Coord, 4> diff = {Coord{+1, 0}, Coord{-1, 0}, Coord{0, +1}, Coord{0, -1}};
+    static queue<Coord> que;
+
+    //更新：唯一tag
+    if(!__vis_uniq_tag){
+        std::memset(__vis, 0, sizeof(__vis));
+    }
+    __vis_uniq_tag ++;
+
+    //清空
+    while(que.size()) que.pop();
+
+
+    auto doPush = [](Coord pos){
+        __vis[pos[0]][pos[1]] = __vis_uniq_tag;
+        que.push(pos);
+    };
+    //BFS
+    doPush(src);
+
+    auto isEmptyGround = [this, &ban](Coord pos) -> bool{
+        if(!isGround(pos)) return false;
+        for(auto it : ban) {
+            if(it == pos) return false;
+        }
+        return true;
+    };
+
+    Coord ans = src;
+    while(que.size()){
+        Coord nw = que.front();
+        que.pop();
+
+        ans = nw;
+        if(isEmptyGround(nw)){
+            ans = nw;
+        //  if(rand() & 3 == 3) break;
+            break;
+        }
+        random_shuffle(diff.begin(), diff.end());
+        for(auto it:diff){
+            Coord nxt = Coord{nw[0] + it[0], nw[1] + it[1]};
+            if(!isEmptyGround(nxt)) continue;
+            if(__vis[nxt[0]][nxt[1]] == __vis_uniq_tag) continue;
+            __prev[nxt[0]][nxt[1]] = nw;
+            doPush(nxt);
+        }
+    }
+    //回溯
+    if(ans == src) return vector<Coord> {};
+    vector<Coord> result;
+    vector<Coord> tmp;
+    for(Coord nw = ans; nw != src; nw = __prev[nw[0]][nw[1]]){
+        if(nw != ans) tmp.push_back(nw);
+    }
+    result.push_back(src);
+    reverse(tmp.begin(), tmp.end());
+    for(auto it : tmp) result.push_back(it);
+    result.push_back(ans);
+    reverse(tmp.begin(), tmp.end());
+    for(auto it : tmp) result.push_back(it);
+    return result;
+}

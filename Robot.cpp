@@ -19,19 +19,25 @@ void Robot::move() {
     if (route.empty()) {
         return;
     }
-    Coord next_pos = route.top();
+    Coord next_pos = *--route.end();
     int cur_pos_x = this->pos[0];
     int cur_pos_y = this->pos[1];
     int next_pos_x = next_pos[0];
     int next_pos_y = next_pos[1];
+    /*
     if (abs(cur_pos_x - next_pos_x) + abs(cur_pos_y - next_pos_y) >= 2) {
         route.push(pre_pos.top());
         pre_pos.pop();
         return;
     }
-    route.pop();
+    route.pop_back();
     // 0:右移；1左移； 2上移；3下移；
     pre_pos.push(next_pos);
+    */
+    // assume abs(cur_pos_x - next_pos_x) + abs(cur_pos_y - next_pos_y) <= 1
+    route.pop_back();
+    // 0:右移；1左移； 2上移；3下移；
+
     if (cur_pos_x < next_pos_x) {//下移
         printf("move %d 3\n", this->id);
     } else if (cur_pos_x > next_pos_x) {//上
@@ -52,12 +58,4 @@ void Robot::move() {
             this->task_type = TaskIdle;
         }
     }
-}
-
-//根据目标设置路径
-void Robot::setRoute(Coord target) {
-    while (!pre_pos.empty()) {
-        pre_pos.pop();
-    }
-    pre_pos.push(pos);
 }
