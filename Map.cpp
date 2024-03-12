@@ -96,7 +96,7 @@ vector<Coord> Map::getRoute_Astar(Coord src, Coord targ){
     return vector<Coord>{};
 }
 
-vector<Coord> Map::getFreeSpace(Coord src, vector<Coord> ban){
+vector<Coord> Map::getFreeSpace(Coord src, vector<Coord> ban, vector<Coord> exit){
     array<Coord, 4> diff = {Coord{+1, 0}, Coord{-1, 0}, Coord{0, +1}, Coord{0, -1}};
     static queue<Coord> que;
 
@@ -124,6 +124,13 @@ vector<Coord> Map::getFreeSpace(Coord src, vector<Coord> ban){
         }
         return true;
     };
+    auto isExit = [this, &exit](Coord pos) -> bool{
+        if(!isGround(pos)) return false;
+        for(auto it : exit) {
+            if(it == pos) return false;
+        }
+        return true;
+    };
 
     Coord ans = src;
     while(que.size()){
@@ -131,7 +138,7 @@ vector<Coord> Map::getFreeSpace(Coord src, vector<Coord> ban){
         que.pop();
 
         ans = nw;
-        if(isEmptyGround(nw)){
+        if(isExit(nw)){
             ans = nw;
         //  if(rand() & 3 == 3) break;
             break;

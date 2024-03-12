@@ -30,7 +30,7 @@ public:
     vector<Coord> getRoute(Coord src, Coord targ);
     vector<Coord> getRoute_BFS(Coord src, Coord targ);
     vector<Coord> getRoute_Astar(Coord src, Coord targ);
-    vector<Coord> getFreeSpace(Coord src, vector<Coord> ban);
+    vector<Coord> getFreeSpace(Coord src, vector<Coord> ban, vector<Coord> exit);
 
 
     //一些帮助函数

@@ -96,6 +96,11 @@ void Controller::dispatch(int time) {
             int now_j = random_order[j];
             if (isCollision(&robots[now_i], &robots[now_j])) {
                 robots[now_i].route.push_back(robots[now_i].pos);
+                ({
+                    if(shouldLog(2)){
+                        fprintf(log_fp, "Frame %d: isCollision(%d, %d)\nRobot %d: wait\n", time, now_i, now_j, now_i);
+                    }
+                });
             }
             if (isSwap(&robots[now_i], &robots[now_j])) {
                 /*
@@ -114,22 +119,41 @@ void Controller::dispatch(int time) {
                 if (next1 == next2) {
                     robots[i].route.push(robots[i].pos);
                 }*/
-                vector<Coord> ban;
+                vector<Coord> ban, exit;
                 // 不能撞到已经避过障的机器人
                 for(int k = 0; k <= i; k++) {
                     int now_k = random_order[k];
                     ban.push_back(robots[now_k].pos);
+                    exit.push_back(robots[now_k].pos);
                 }
                 // 避开要避让的机器人将要走的路
-                const int retreat_length = 100;
+                const int retreat_length = 8;
                 for(int k = 1; k <= retreat_length; k ++) {
                     if(k > robots[now_j].route.size()) break;
-                    ban.push_back(*(robots[now_j].route.end() - k));
+                    exit.push_back(*(robots[now_j].route.end() - k));
                 }
-                vector<Coord> result = game_map -> getFreeSpace(robots[now_i].pos, ban);
+                vector<Coord> result = game_map -> getFreeSpace(robots[now_i].pos, ban, exit);
                 for(auto it : result) {
                     robots[now_i].route.push_back(it);
                 }
+                ({
+                    if(shouldLog(2)){
+                        fprintf(log_fp, "Frame %d: isSwap(%d, %d)\nRobot %d:\n", time, now_i, now_j, now_i);
+
+                        fprintf(log_fp, "ban = {");
+                        for(auto it : ban) fprintf(log_fp, "(%d, %d), ", it[0], it[1]);
+                        fprintf(log_fp, "}\n");
+
+                        fprintf(log_fp, "exit = {");
+                        for(auto it : exit) fprintf(log_fp, "(%d, %d), ", it[0], it[1]);
+                        fprintf(log_fp, "}\n");
+
+                        fprintf(log_fp, "add path = {");
+                        for(auto it : result) fprintf(log_fp, "(%d, %d), ", it[0], it[1]);
+                        for(auto it : result) fprintf(log_fp, "(%d, %d), ", it[0], it[1]);
+                        fprintf(log_fp, "}\n");
+                    }
+                });
                 // 尝试等一下来避免卡死
             //  robots[now_j].route.push_back(robots[now_j].pos);
                 break;
@@ -200,7 +224,7 @@ int Controller::getdis(Coord robot, Coord item) {
 bool Controller::isCollision(Robot *robot1, Robot *robot2) {
     auto next1 = robot1->route.empty() ? robot1->pos : *--robot1->route.end();
     auto next2 = robot2->route.empty() ? robot2->pos : *--robot2->route.end();
-    if (next1 == next2) {
+    if (next1 == next2 && (robot1->pos != next1) && (robot2->pos != next2)) {
         return true;
     }
     return false;
@@ -210,6 +234,9 @@ bool Controller::isSwap(Robot *robot1, Robot *robot2) {
     auto next1 = robot1->route.empty() ? robot1->pos : *--robot1->route.end();
     auto next2 = robot2->route.empty() ? robot2->pos : *--robot2->route.end();
     if (next1 == robot2->pos && next2 == robot1->pos) {
+        return true;
+    }
+    if (next1 == next2) {
         return true;
     }
     return false;
