@@ -55,7 +55,6 @@ void Robot::move() {
             printf("get %d\n", this->id);
         } else if (this->task_type == TaskBerth) {
             printf("pull %d\n", this->id);
-            this->task_type = TaskIdle;
         }
     }
 }

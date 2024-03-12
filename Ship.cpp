@@ -18,7 +18,7 @@ void Ship::move() {
     if(status!=1){
         return;
     }
-    if(force_to_go){
+    if(canGo&&force_to_go){
         go();
         clear();
         canShip= true;
@@ -26,7 +26,7 @@ void Ship::move() {
         canShip= true;
         return;
     }
-   if(item_count==capacity){
+   if(item_count==capacity&&canGo){
        go();
        clear();
        canShip= true;
