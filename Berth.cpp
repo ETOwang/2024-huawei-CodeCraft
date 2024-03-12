@@ -23,6 +23,9 @@ void Berth::update() {
     if(ship== nullptr){
         return;
     }
+    if(ship->status!=1){
+        return;
+    }
     for (int i = 0; i < this->loading_speed; ++i) {
         if(!goods.empty()&&ship->item_count<ship->capacity){
             goods.pop();

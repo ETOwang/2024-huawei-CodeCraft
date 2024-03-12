@@ -25,7 +25,6 @@ public:
     //轮船容积
     int capacity;
     //初始化
-    Ship(int id, int status);
     Ship();
 
     //进行对轮船的操作（如果需要）

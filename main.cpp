@@ -109,7 +109,7 @@ void finish() {
 int main() {
     srand(1);
     //流程：输入，调度，移动
-    //freopen("D:\\24_huawei_com\\WindowsRelease\\record\\test.txt", "r", stdin);
+    freopen("D:\\24_huawei_com\\WindowsRelease\\record\\test.txt", "r", stdin);
     Init();
     finish();
     while (true) {

@@ -171,17 +171,34 @@ void Controller::dispatch(int time) {
     for (int i = 0; i < ships_num; ++i) {
         if (ships[i].status == 1 && ships[i].target_id == -1) {
             for (auto berth: used) {
-                if (berths[berth.first].ship == nullptr || berths[berth.first].ship == &ships[i]) {
-                    berths[berth.first].ship = &ships[i];
+                if (berths[berth.first].ship == nullptr ) {
+                    berths[berth.first].ship=&ships[i];
                     ships[i].target_id = berth.first;
                     break;
                 }
             }
         }
     }
+
 }
 
 int Controller::assignBerth(Robot *robot) {
+    /*used[1]=2;
+    used[0]=2;
+    used[2]=2;
+    used[9]=2;
+    if(robot->id==1||robot->id==2||robot->id==4){
+        return 1;
+    }
+    if(robot->id==0||robot->id==3){
+        return 0;
+    }
+    if(robot->id==5||robot->id==7||robot->id==8){
+        return 2;
+    }
+    if(robot->id==6||robot->id==9){
+        return 9;
+    }*/
     if (robot->berth_pos[0] != -1) {
         for (int i = 0; i < berth_num; ++i) {
             if (berths[i].pos == robot->berth_pos) {

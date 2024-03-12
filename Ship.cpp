@@ -5,14 +5,10 @@
 #include "Ship.h"
 
 
-Ship::Ship(int id, int status){
-    this -> id = id;
-    this -> status = status;
-    force_to_go= false;
-}
 Ship::Ship(){
     force_to_go= false;
     canShip= true;
+    canGo= false;
 }
 void Ship::move() {
     if(status!=1){
@@ -23,7 +19,6 @@ void Ship::move() {
         clear();
         canShip= true;
         canGo= false;
-        canShip= true;
         return;
     }
    if(item_count==capacity&&canGo){
