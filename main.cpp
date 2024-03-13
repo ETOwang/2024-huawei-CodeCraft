@@ -126,5 +126,8 @@ int main() {
             berths[i].update();
         }
         finish();
+        if(frame==15000){
+            return 0;
+        }
     }
 }
