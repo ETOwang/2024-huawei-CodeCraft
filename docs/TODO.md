@@ -90,6 +90,8 @@ for(frames){
 
 + 寻路算法可能效率不够\
   03/12: 暂时不改
++ 考虑A*算法？
++ https://github.com/CHH3213/chhRobotics_CPP/tree/master/PathPlanning/A_Star
 
 + 避障算法无法解决多物体碰撞\
   03/12: almost fixed
