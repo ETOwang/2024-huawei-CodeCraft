@@ -91,6 +91,7 @@ int Input() {
     getline(cin, temp);
     game_map.updateItem(frame);
     game_map.time = frame;
+    game_map.build();
     return frame;
 }
 

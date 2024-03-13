@@ -167,3 +167,49 @@ vector<Coord> Map::getFreeSpace(Coord src, vector<Coord> ban, vector<Coord> exit
     for(auto it : tmp) result.push_back(it);
     return result;
 }
+
+void Map::build() {
+    for (int i = 0; i <= SIZE*SIZE; ++i) {
+        parent[i]=i;
+    }
+    for (int i = 0; i < SIZE; ++i) {
+        for (int j = 0; j < SIZE; ++j) {
+            if(!isGround({i,j})){
+                continue;
+            }
+            if(isGround({i-1,j})){
+                unite({i,j},{i-1,j});
+            }
+            if(isGround({i+1,j})){
+                unite({i,j},{i+1,j});
+            }
+            if(isGround({i,j+1})){
+                unite({i,j},{i,j+1});
+            }
+            if(isGround({i,j-1})){
+                unite({i,j},{i,j-1});
+            }
+        }
+    }
+}
+int Map::transform(Coord x) {
+    return x[0]*SIZE+x[1];
+}
+
+void Map::unite(Coord x, Coord y) {
+    parent[find(transform(x))]= find(transform(y));
+}
+
+int Map::find(int x) {
+    if(parent[x]== x){
+        return x;
+    }
+    return parent[x]= find(parent[x]);
+}
+
+bool Map::isCommunicated(Coord x, Coord y) {
+    if(find(transform(x))== find(transform(y))){
+        return true;
+    }
+    return false;
+}
