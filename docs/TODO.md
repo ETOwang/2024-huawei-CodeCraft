@@ -89,9 +89,13 @@ for(frames){
   03/11: fixed
 
 + 寻路算法可能效率不够\
-  03/12: 暂时不改
-+ 考虑A*算法？
-+ https://github.com/CHH3213/chhRobotics_CPP/tree/master/PathPlanning/A_Star
+  03/12: 暂时不改\
+  03/13: 可以在一次 bfs 内（从机器人位置出发）对所有物品寻路，会极大减少 bfs 次数\
+  另外，可以考虑初始化时（以低分辨率）跑出全源最短路
+
++ 考虑A*算法？\
+  https://github.com/CHH3213/chhRobotics_CPP/tree/master/PathPlanning/A_Star\
+  03:13: 写了，能用，但是目前还是用的bfs
 
 + 避障算法无法解决多物体碰撞\
   03/12: almost fixed

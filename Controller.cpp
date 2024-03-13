@@ -126,7 +126,7 @@ void Controller::dispatch(int time) {
                     exit.push_back(robots[now_k].pos);
                 }
                 // 避开要避让的机器人将要走的路
-                const int retreat_length = 30;
+                const int retreat_length = 40;
                 for(int k = 1; k <= retreat_length; k ++) {
                     if(k > robots[now_j].route.size()) break;
                     exit.push_back(*(robots[now_j].route.end() - k));

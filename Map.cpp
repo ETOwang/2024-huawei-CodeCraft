@@ -49,6 +49,7 @@ vector<Coord> Map::getRoute(Coord src, Coord targ){
 static Coord __prev[SIZE][SIZE];
 //标记是否bfs过。用唯一tag代替初始化
 static int __vis[SIZE][SIZE], __vis_uniq_tag = 0;
+static int __dis[SIZE][SIZE];
 
 
 vector<Coord> Map::getRoute_BFS(Coord src, Coord targ){
@@ -91,9 +92,50 @@ vector<Coord> Map::getRoute_BFS(Coord src, Coord targ){
     return result;
 }
 
+
+
 vector<Coord> Map::getRoute_Astar(Coord src, Coord targ){
-    // do something.
-    return vector<Coord>{};
+    array<Coord, 4> diff = {Coord{+1, 0}, Coord{-1, 0}, Coord{0, +1}, Coord{0, -1}};
+    static priority_queue<pair<int, Coord>> que;
+
+    //更新：唯一tag
+    if(!__vis_uniq_tag){
+        std::memset(__vis, 0, sizeof(__vis));
+    }
+    __vis_uniq_tag ++;
+
+    //清空
+    while(que.size()) que.pop();
+
+    auto f = [](Coord st, Coord ed){
+        return abs(st[0] - ed[0]) + abs(st[1] - ed[1]);
+    };
+    auto doPush = [&f, &targ](Coord pos){
+        __vis[pos[0]][pos[1]] = __vis_uniq_tag;
+        que.push(make_pair(-(__dis[pos[0]][pos[1]] + f(pos, targ)), pos));
+    };
+    __dis[src[0]][src[1]] = 0;
+    //Astar
+    doPush(src);
+    while(que.size() && (__vis[targ[0]][targ[1]] != __vis_uniq_tag)){
+        Coord nw = que.top().second;
+        que.pop();
+        for(auto it:diff){
+            Coord nxt = Coord{nw[0] + it[0], nw[1] + it[1]};
+            if(!this -> isGround(nxt)) continue;
+            if(__vis[nxt[0]][nxt[1]] == __vis_uniq_tag && __dis[nxt[0]][nxt[1]] <= __dis[nw[0]][nw[1]] + 1) continue;
+            __dis[nxt[0]][nxt[1]] = __dis[nw[0]][nw[1]] + 1;
+            __prev[nxt[0]][nxt[1]] = nw;
+            doPush(nxt);
+        }
+    }
+    //回溯
+    if(__vis[targ[0]][targ[1]] != __vis_uniq_tag) return vector<Coord> {};
+    vector<Coord> result;
+    for(Coord nw = targ; nw != src; nw = __prev[nw[0]][nw[1]]){
+        result.push_back(nw);
+    }
+    return result;
 }
 
 vector<Coord> Map::getFreeSpace(Coord src, vector<Coord> ban, vector<Coord> exit){
