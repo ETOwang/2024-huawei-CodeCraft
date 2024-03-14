@@ -40,14 +40,14 @@ void Controller::dispatch(int time) {
                     continue;
                 }
                 double eval = item.value /
-                              pow((double) getdis(robots[i].pos, item.pos) + getdis(item.pos, berths[berth].pos),
+                              pow((double) getdis(robots[i].pos, item.pos) ,//+ getdis(item.pos, berths[berth].pos),
                                   2);
                 if (best_eval < eval) {
                     best_item = &item;
                     best_eval = eval;
                 }
             }
-            if (best_item == nullptr) {
+            if (best_item == nullptr||best_item->pos==robots[i].item_pos) {
                 continue;
             }
             best_item->setInvalid();
