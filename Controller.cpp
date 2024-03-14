@@ -26,6 +26,9 @@ void Controller::dispatch(int time) {
     for (int i = 0; i < robot_num; ++i) {
         if (robots[i].task_type == TaskIdle) {
             int berth = assignBerth(&robots[i]);
+            if(berth==-1){
+                continue;
+            }
             robots[i].berth_pos = berths[berth].pos;
             Item *best_item = nullptr;
             double best_eval = -1;
@@ -36,16 +39,12 @@ void Controller::dispatch(int time) {
                 if (!game_map->isCommunicated(item.pos, robots[i].pos)) {
                     continue;
                 }
-                if (best_item == nullptr) {
+                double eval = item.value /
+                              pow((double) getdis(robots[i].pos, item.pos) + getdis(item.pos, berths[berth].pos),
+                                  2);
+                if (best_eval < eval) {
                     best_item = &item;
-                } else {
-                    double eval = item.value /
-                                  pow((double) getdis(robots[i].pos, item.pos) + getdis(item.pos, berths[berth].pos),
-                                      2);
-                    if (best_eval < eval) {
-                        best_item = &item;
-                        best_eval = eval;
-                    }
+                    best_eval = eval;
                 }
             }
             if (best_item == nullptr) {
@@ -195,7 +194,7 @@ int Controller::assignBerth(Robot *robot) {
         }
     }
     for (auto &item: used) {
-        if (item.second == 1&&game_map->isCommunicated(berths[item.first].pos,robot->pos)) {
+        if (item.second == 1 && game_map->isCommunicated(berths[item.first].pos, robot->pos)) {
             item.second++;
             return item.first;
         }
@@ -204,8 +203,13 @@ int Controller::assignBerth(Robot *robot) {
     std::mt19937 gen(rd());  // 随机数引擎，使用Mersenne Twister算法
     std::uniform_int_distribution<int> dist(0, 9);  // 均匀分布
     int random = dist(gen);
-    while ((used.count(random) && used[random] == 2)||!game_map->isCommunicated(berths[random].pos,robot->pos)) {
+    int count=0;
+    while ((used.count(random) && used[random] == 2) || !game_map->isCommunicated(berths[random].pos, robot->pos)) {
+        if(count==10){
+            return -1;
+        }
         random = dist(gen);
+        count++;
     }
     if (used.count(random)) {
         used[random]++;
