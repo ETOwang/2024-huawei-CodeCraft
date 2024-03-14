@@ -60,6 +60,7 @@ void Init() {
     for (int i = 0; i < ship_num; ++i) {
         ships[i].id=i;
     }
+    game_map.build();
 }
 
 //每一帧读入，并更新相应信息，返回当前帧信息
@@ -91,7 +92,6 @@ int Input() {
     getline(cin, temp);
     game_map.updateItem(frame);
     game_map.time = frame;
-    game_map.build();
     return frame;
 }
 
