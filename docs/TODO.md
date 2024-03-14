@@ -67,10 +67,22 @@ for(frames){
     }
 }
 ```
+测试脚本
+```
+@echo off
+cd /D "本地判题器所在目录"
+for /R "本地地图所在目录" %%F in (*) do (
+   echo start
+   echo.
+   <NUL set /p "=%%~nF : "
+   .\PreliminaryJudge_win_1.exe -m "%%F" "本地可执行文件所在目录" -l NONE  
+   echo end
+   echo.
+)
+echo all tested
+pause
 
-
-
-
+```
 ---
 
 
