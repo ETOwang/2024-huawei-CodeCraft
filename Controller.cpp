@@ -51,7 +51,7 @@ void Controller::dispatch(int time) {
             for(int i = 0; i < dis.size(); i ++) {
                 double eval = item_t[i]->value /
                               pow((double) dis[i] ,//+ getdis(item.pos, berths[berth].pos),
-                                  2);
+                                  1);
                 if (best_eval < eval) {
                     best_item = item_t[i];
                     best_eval = eval;
