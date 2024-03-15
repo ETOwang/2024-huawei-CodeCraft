@@ -213,7 +213,6 @@ vector<Coord> Map::getFreeSpace(Coord src, vector<Coord> ban, vector<Coord> exit
 vector<int> Map::getDisVector(Coord src, vector<Coord> targ){
     array<Coord, 4> diff = {Coord{+1, 0}, Coord{-1, 0}, Coord{0, +1}, Coord{0, -1}};
     static queue<Coord> que;
-
     //更新：唯一tag
     if(!__vis_uniq_tag){
         std::memset(__vis, 0, sizeof(__vis));

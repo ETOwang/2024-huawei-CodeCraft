@@ -26,7 +26,6 @@ public:
     //主调度函数，为所有目标分配任务（如果需要）
     void dispatch(int time);
     int assignBerth(Robot* robot);
-    int getdis(Coord robot,Coord item);
     bool isCollision(Robot* robot1,Robot* robot2);
     bool isSwap(Robot* robot1,Robot* robot2);
 };
