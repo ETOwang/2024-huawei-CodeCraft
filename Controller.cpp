@@ -145,7 +145,7 @@ void Controller::dispatch(int time) {
             que_tmp.push(i);
         }
     }
-    fprintf(log_fp, "random_order_tmp.size() == %d\n", random_order_tmp.size());
+//  fprintf(log_fp, "random_order_tmp.size() == %d\n", random_order_tmp.size());
 //  assert(random_order_tmp.size() == 10);
     reverse(random_order_tmp.begin(), random_order_tmp.end());
     array<int, 10> random_order{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};

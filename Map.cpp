@@ -140,6 +140,7 @@ vector<Coord> Map::getRoute_Astar(Coord src, Coord targ){
 
 vector<Coord> Map::getFreeSpace(Coord src, vector<Coord> ban, vector<Coord> exit){
     array<Coord, 4> diff = {Coord{+1, 0}, Coord{-1, 0}, Coord{0, +1}, Coord{0, -1}};
+    random_shuffle(diff.begin(), diff.end());
     static queue<Coord> que;
 
     //更新：唯一tag
