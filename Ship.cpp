@@ -11,7 +11,7 @@ Ship::Ship(){
     canGo= false;
 }
 void Ship::move() {
-    if(status!=1){
+    if(status != 1){
         return;
     }
     if(canGo&&force_to_go){

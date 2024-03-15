@@ -167,22 +167,6 @@ void Controller::dispatch(int time) {
                 break;
             }
             if (isSwap(&robots[now_i], &robots[now_j])) {
-                /*
-                auto next1 = robots[i].route.top();
-                auto next2 = robots[j].route.top();
-                if (next1 == robots[j].pos && next2 == robots[i].pos) {
-                    robots[i].route.push(robots[i].pre_pos.top());
-                    robots[i].pre_pos.pop();
-                    if(robots[i].pre_pos.empty()){
-                        continue;
-                    }
-                    robots[i].route.push(robots[i].pre_pos.top());
-                    robots[i].pre_pos.pop();
-                    continue;
-                }
-                if (next1 == next2) {
-                    robots[i].route.push(robots[i].pos);
-                }*/
                 vector<Coord> ban, exit;
                 // 不能撞到已经避过障的机器人
                 for (int k = 0; k <= i; k++) {
@@ -256,41 +240,18 @@ int Controller::assignBerth(Robot *robot) {
         }
     }
     for (auto &item: used) {
-        if (item.second == 1 && game_map->isCommunicated(berths[item.first].pos, robot->pos)) {
+        if (item.second<2 && game_map->isCommunicated(berths[item.first].pos, robot->pos)) {
             item.second++;
             return item.first;
         }
     }
-    std::vector<Berth> help;
     for (int i = 0; i < berth_num; ++i) {
-        help.push_back(berths[i]);
-    }
-    std::sort(help.begin(),help.end());
-    for (auto& berth:help) {
-         if(!game_map->isCommunicated(berth.pos,robot->pos)){
-             continue;
-         }
-         if(used.count(berth.id)){
-             if(used[berth.id]>1){
-                 continue;
-             } else{
-                 used[berth.id]++;
-                 return berth.id;
-             }
-         } else{
-             used[berth.id]=1;
-             return berth.id;
-         }
+        if(!used.count(i)&&game_map->isCommunicated(berths[i].pos,robot->pos)){
+            used[i]=1;
+            return i;
+        }
     }
     return -1;
-}
-
-int Controller::getdis(Coord robot, Coord item) {
-    auto route = game_map->getRoute(robot, item);
-    if (route.size() == 0) {
-        return 1;
-    }
-    return route.size();
 }
 
 bool Controller::isCollision(Robot *robot1, Robot *robot2) {
@@ -314,3 +275,39 @@ bool Controller::isSwap(Robot *robot1, Robot *robot2) {
     return false;
 }
 
+//泊位预分配
+void Controller::preAssign() {
+    double berthValue[berth_num];
+    int berthConnected[berth_num];
+    double berthDistance[berth_num];
+    //确定泊位与机器人的连通性
+    for (int i = 0; i < berth_num; ++i) {
+        for (int j = 0; j < robot_num; ++j) {
+            if (game_map->isCommunicated(berths[i].pos, robots[j].pos)){
+                berthConnected[i]++;
+            }
+        }
+    }
+    //确定泊位间距离
+    for (int i = 0; i < berth_num; ++i) {
+        for (int j = 0; j < berth_num; ++j) {
+            berthDistance[i] += sqrt(pow((berths[i].pos[0] - berths[j].pos[0]), 2) + pow((berths[i].pos[1] -berths[j].pos[1]), 2));
+        }
+    }
+    for (int i = 0; i < berth_num; ++i) {
+        berthValue[i] = para1 * berthConnected[i] + para2 * berths[i].loading_speed +
+                para3 * berths[i].transport_time + para4 * berthDistance[i];
+    }
+    for (int i = 0; i < 5; ++i) {
+        int temp = 0;
+        int max = -1;
+        for (int j = 0; j < berth_num; ++j) {
+            if (berthValue[j] > max){
+                temp = j;
+                max = berthValue[j];
+            }
+        }
+        berthValue[temp] = -1;
+        used[temp] = 0;
+    }
+}
