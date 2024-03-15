@@ -32,6 +32,9 @@ void Controller::dispatch(int time) {
             robots[i].berth_pos = berths[berth].pos;
             Item *best_item = nullptr;
             double best_eval = -1;
+            // find the best item
+            // get dis...
+            vector<Item*> item_t;
             for (auto &item: game_map->items) {
                 if (!item.isValid(time)) {
                     continue;
@@ -39,11 +42,18 @@ void Controller::dispatch(int time) {
                 if (!game_map->isCommunicated(item.pos, robots[i].pos)) {
                     continue;
                 }
-                double eval = item.value /
-                              pow((double) getdis(robots[i].pos, item.pos) ,//+ getdis(item.pos, berths[berth].pos),
+                item_t.push_back(&item);
+            }
+            vector<Coord> targ;
+            for (auto it:item_t) targ.push_back((*it).pos);
+            vector<int> dis = game_map->getDisVector(robots[i].pos, targ);
+            if(!dis.size()) continue;
+            for(int i = 0; i < dis.size(); i ++) {
+                double eval = item_t[i]->value /
+                              pow((double) dis[i] ,//+ getdis(item.pos, berths[berth].pos),
                                   2);
                 if (best_eval < eval) {
-                    best_item = &item;
+                    best_item = item_t[i];
                     best_eval = eval;
                 }
             }

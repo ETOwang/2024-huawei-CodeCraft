@@ -31,6 +31,7 @@ public:
     vector<Coord> getRoute_BFS(Coord src, Coord targ);
     vector<Coord> getRoute_Astar(Coord src, Coord targ);
     vector<Coord> getFreeSpace(Coord src, vector<Coord> ban, vector<Coord> exit);
+    vector<int>   getDisVector(Coord src, vector<Coord> targ);
 
 
     //一些帮助函数
