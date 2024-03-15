@@ -245,6 +245,12 @@ int Controller::assignBerth(Robot *robot) {
             return item.first;
         }
     }
+    for (auto &item: used) {
+        if (game_map->isCommunicated(berths[item.first].pos, robot->pos)) {
+            item.second++;
+            return item.first;
+        }
+    }
     for (int i = 0; i < berth_num; ++i) {
         if(!used.count(i)&&game_map->isCommunicated(berths[i].pos,robot->pos)){
             used[i]=1;
