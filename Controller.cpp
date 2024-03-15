@@ -99,8 +99,60 @@ void Controller::dispatch(int time) {
             berths[i].ship->force_to_go = true;
         }
     }
+//  array<int, 10> random_order{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+//  random_shuffle(random_order.begin(), random_order.end());
+    vector<int> random_order_tmp, deg_tmp;
+    queue<int> que_tmp;
+    for (int i = 0; i < robot_num; ++i) {
+        array<Coord, 4> diff = {Coord{-1, 0}, Coord{1, 0}, Coord{0, -1}, Coord{0,1}};
+        int deg = 0;
+        for (auto it:diff) {
+            Coord nw = robots[i].pos;
+            Coord to = Coord{nw[0] + it[0], nw[1] + it[1]};
+            int add = 1;
+            if (!game_map -> isGround(to)) add = 0;
+            for (int j = 0; j < robot_num; ++j) {
+                if (robots[j].pos == to) add = 0;
+            }
+            deg += add;
+        }
+        deg_tmp.push_back(deg);
+        if(deg){
+            que_tmp.push(i);
+        }
+    }
+    while(que_tmp.size()){
+        int nwid = que_tmp.front();
+        que_tmp.pop();
+        random_order_tmp.push_back(nwid);
+        array<Coord, 4> diff = {Coord{-1, 0}, Coord{1, 0}, Coord{0, -1}, Coord{0,1}};
+        int deg = 0;
+        for (auto it:diff) {
+            Coord nw = robots[nwid].pos;
+            Coord to = Coord{nw[0] + it[0], nw[1] + it[1]};
+            for (int j = 0; j < robot_num; ++j) {
+                if (robots[j].pos == to) {
+                    if (!deg_tmp[j]) {
+                        que_tmp.push(j);
+                    }
+                    deg_tmp[j]++;
+                }
+            }
+        }
+    }
+    for (int i = 0; i < robot_num; ++i) {
+        if (!deg_tmp[i]) {
+            que_tmp.push(i);
+        }
+    }
+    fprintf(log_fp, "random_order_tmp.size() == %d\n", random_order_tmp.size());
+//  assert(random_order_tmp.size() == 10);
+    reverse(random_order_tmp.begin(), random_order_tmp.end());
     array<int, 10> random_order{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    random_shuffle(random_order.begin(), random_order.end());
+    for (int i = 0; i < robot_num; ++i) {
+        random_order[i] = random_order_tmp[i];
+    }
+
     for (int i = 0; i < robot_num; ++i) {
         int now_i = random_order[i];
         for (int j = 0; j < i; ++j) {
