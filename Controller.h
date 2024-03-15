@@ -4,10 +4,10 @@
 
 #ifndef INC_24_HUAWEI_CONTROLLER_H
 #define INC_24_HUAWEI_CONTROLLER_H
-#define para1 0.25
-#define para2 0.25
-#define para3 0.25
-#define para4 0.25
+#define para1 0.1
+#define para2 0.2
+#define para3 0.4
+#define para4 0.3
 #include <map>
 #include "Utils.h"
 #include "Item.h"

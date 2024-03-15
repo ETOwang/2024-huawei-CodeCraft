@@ -301,19 +301,19 @@ void Controller::preAssign() {
         }
     }
     for (int i = 0; i < berth_num; ++i) {
-        berthValue[i] = para1 * berthConnected[i] + para2 * berths[i].loading_speed +
+        berthValue[i] = para1 * berthConnected[i] + para2 * berths[i].loading_speed -
                 para3 * berths[i].transport_time + para4 * berthDistance[i];
     }
     for (int i = 0; i < 5; ++i) {
         int temp = 0;
-        int max = -1;
+        int max = INT_MIN;
         for (int j = 0; j < berth_num; ++j) {
             if (berthValue[j] > max){
                 temp = j;
                 max = berthValue[j];
             }
         }
-        berthValue[temp] = -1;
+        berthValue[temp] = INT_MIN;
         used[temp] = 0;
     }
 }
