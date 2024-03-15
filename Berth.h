@@ -27,6 +27,8 @@ public:
     //泊位上的船
     Ship *ship;
 
+    friend bool operator < (const Berth& a,const Berth& b);
+
     //初始化
     Berth(int id, Coord pos, int transport_time, int loading_speed);
 

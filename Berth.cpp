@@ -38,3 +38,7 @@ void Berth::update() {
         ship= nullptr;
     }
 }
+
+bool operator<(const Berth& a, const Berth& b) {
+    return a.transport_time<b.transport_time;
+}

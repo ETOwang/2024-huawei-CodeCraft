@@ -199,24 +199,28 @@ int Controller::assignBerth(Robot *robot) {
             return item.first;
         }
     }
-    std::random_device rd;  // 随机设备，用于获取种子
-    std::mt19937 gen(rd());  // 随机数引擎，使用Mersenne Twister算法
-    std::uniform_int_distribution<int> dist(0, 9);  // 均匀分布
-    int random = dist(gen);
-    int count=0;
-    while ((used.count(random) && used[random] == 2) || !game_map->isCommunicated(berths[random].pos, robot->pos)) {
-        if(count==10){
-            return -1;
-        }
-        random = dist(gen);
-        count++;
+    std::vector<Berth> help;
+    for (int i = 0; i < berth_num; ++i) {
+        help.push_back(berths[i]);
     }
-    if (used.count(random)) {
-        used[random]++;
-    } else {
-        used[random] = 1;
+    std::sort(help.begin(),help.end());
+    for (auto& berth:help) {
+         if(!game_map->isCommunicated(berth.pos,robot->pos)){
+             continue;
+         }
+         if(used.count(berth.id)){
+             if(used[berth.id]>1){
+                 continue;
+             } else{
+                 used[berth.id]++;
+                 return berth.id;
+             }
+         } else{
+             used[berth.id]=1;
+             return berth.id;
+         }
     }
-    return random;
+    return -1;
 }
 
 int Controller::getdis(Coord robot, Coord item) {
