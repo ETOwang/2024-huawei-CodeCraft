@@ -14,7 +14,6 @@ Ship ships[ship_num];
 Controller controller;
 Map game_map;
 Berth berths[berth_num];
-
 //初始化函数，读入初始化信息并创建相应对象
 void Init() {
     int index = 0;
@@ -61,6 +60,7 @@ void Init() {
         ships[i].id=i;
     }
     game_map.build();
+    controller.preAssign();
 }
 
 //每一帧读入，并更新相应信息，返回当前帧信息

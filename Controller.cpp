@@ -223,3 +223,39 @@ bool Controller::isSwap(Robot *robot1, Robot *robot2) {
     return false;
 }
 
+//泊位预分配
+void Controller::preAssign() {
+    double berthValue[berth_num];
+    int berthConnected[berth_num];
+    double berthDistance[berth_num];
+    //确定泊位与机器人的连通性
+    for (int i = 0; i < berth_num; ++i) {
+        for (int j = 0; j < robot_num; ++j) {
+            if (game_map->isCommunicated(berths[i].pos, robots[j].pos)){
+                berthConnected[i]++;
+            }
+        }
+    }
+    //确定泊位间距离
+    for (int i = 0; i < berth_num; ++i) {
+        for (int j = 0; j < berth_num; ++j) {
+            berthDistance[i] += sqrt(pow((berths[i].pos[0] - berths[j].pos[0]), 2) + pow((berths[i].pos[1] -berths[j].pos[1]), 2));
+        }
+    }
+    for (int i = 0; i < berth_num; ++i) {
+        berthValue[i] = para1 * berthConnected[i] + para2 * berths[i].loading_speed +
+                para3 * berths[i].transport_time + para4 * berthDistance[i];
+    }
+    for (int i = 0; i < 5; ++i) {
+        int temp = 0;
+        int max = -1;
+        for (int j = 0; j < berth_num; ++j) {
+            if (berthValue[j] > max){
+                temp = j;
+                max = berthValue[j];
+            }
+        }
+        berthValue[temp] = -1;
+        used[temp] = 0;
+    }
+}

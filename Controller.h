@@ -4,6 +4,10 @@
 
 #ifndef INC_24_HUAWEI_CONTROLLER_H
 #define INC_24_HUAWEI_CONTROLLER_H
+#define para1 0.25
+#define para2 0.25
+#define para3 0.25
+#define para4 0.25
 #include <map>
 #include "Utils.h"
 #include "Item.h"
@@ -28,6 +32,7 @@ public:
     int assignBerth(Robot* robot);
     bool isCollision(Robot* robot1,Robot* robot2);
     bool isSwap(Robot* robot1,Robot* robot2);
+    void preAssign();
 };
 
 

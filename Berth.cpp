@@ -27,7 +27,7 @@ void Berth::update() {
         return;
     }
     for (int i = 0; i < this->loading_speed; ++i) {
-        if(!goods.empty()&&ship->item_count<ship->capacity){
+        if(!goods.empty()&&ship->item_count < ship->capacity){
             goods.pop();
             ship->item_count++;
         } else{
