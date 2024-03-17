@@ -10,7 +10,6 @@ Item::Item(int time, Coord pos, int value){
     this -> value = value;
 }
 
-const int time_before_disappear = 1000;
 bool Item::isValid(int time){
     if(time - this -> time > time_before_disappear) return false;
     return true;

@@ -9,10 +9,8 @@ Berth::Berth(int id, Coord pos, int transport_time, int loading_speed){
     this -> pos = pos;
     this -> transport_time = transport_time;
     this -> loading_speed = loading_speed;
-    this->ship= nullptr;
 }
 Berth::Berth(){
-    ship= nullptr;
 }
 
 void Berth::addItem(Item *item) {
@@ -20,22 +18,22 @@ void Berth::addItem(Item *item) {
 }
 
 void Berth::update() {
-    if(ship== nullptr){
+    if(ships.empty()){
         return;
     }
-    if(ship->status!=1){
+    if(ships.front()->status!=1){
         return;
     }
     for (int i = 0; i < this->loading_speed; ++i) {
-        if(!goods.empty()&&ship->item_count < ship->capacity){
+        if(!goods.empty()&&ships.front()->item_count < ships.front()->capacity){
             goods.pop();
-            ship->item_count++;
+            ships.front()->item_count++;
         } else{
             break;
         }
     }
-    if(ship->item_count==ship->capacity){
-        ship= nullptr;
+    if(ships.front()->item_count==ships.front()->capacity){
+        ships.pop();
     }
 }
 

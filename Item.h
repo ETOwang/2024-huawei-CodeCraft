@@ -9,6 +9,7 @@
 
 class Item {
 public:
+    int time_before_disappear = 1000;
     //物品的生成时间
     int time;
     //物品位置
