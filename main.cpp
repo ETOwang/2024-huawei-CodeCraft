@@ -69,6 +69,7 @@ int Input() {
     int item_add;
     scanf("%d%d", &frame, &temp_money);
     scanf("%d", &item_add);
+    game_map.k=item_add;
     for (int i = 0; i < item_add; ++i) {
         Coord pos;
         int value;

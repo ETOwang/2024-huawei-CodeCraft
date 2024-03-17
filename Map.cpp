@@ -26,15 +26,15 @@ void Map::addItem(Item item){
 }
 //对当前位置进行检查，清理无用物品
 void Map::updateItem(int time){
-    for (auto item = items.begin(); item !=items.end() ; ) {
-        if((*item).isValid(time)){
-            break;
+    for (auto it = items.begin(); it !=items.end() ; ) {
+        if(it->is_locked){
+            ++it;
+            continue;
+        }
+        if(!it->isValid(time)){
+            it=items.erase(it);
         } else{
-            if((*item).time>0){
-                item=items.erase(item);
-            } else{
-                item++;
-            }
+            break;
         }
     }
 }

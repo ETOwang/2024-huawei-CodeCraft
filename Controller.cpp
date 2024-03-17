@@ -33,10 +33,10 @@ void Controller::dispatch(int time) {
             Item *best_item = nullptr;
             double best_eval = -1;
             // find the best item
-            // get dis...
+            // get dis
             vector<Item *> item_t;
             for (auto &item: game_map->items) {
-                if (!item.isValid(time)) {
+                if (item.is_locked) {
                     continue;
                 }
                 if (!game_map->isCommunicated(item.pos, robots[i].pos)) {
@@ -47,23 +47,21 @@ void Controller::dispatch(int time) {
             vector<Coord> targ;
             for (auto it: item_t) targ.push_back((*it).pos);
             vector<int> dis = game_map->getDisVector(robots[i].pos, targ);
-            if (!dis.size()) continue;
-            for (int i = 0; i < dis.size(); i++) {
-                double eval = item_t[i]->value /
-                              pow((double) dis[i],//+ getdis(item.pos, berths[berth].pos),
-                                  1);
-                if(time+dis[i]>item_t[i]->time+item_t[i]->time_before_disappear){
+            if (dis.empty()) continue;
+            for (int j = 0; j < dis.size(); j++) {
+                double eval = item_t[j]->value /pow((double) dis[j],1);
+                if(time+dis[j]>item_t[j]->time+item_t[j]->time_before_disappear){
                     continue;
                 }
                 if (best_eval < eval) {
-                    best_item = item_t[i];
+                    best_item = item_t[j];
                     best_eval = eval;
                 }
             }
             if (best_item == nullptr || best_item->pos == robots[i].item_pos) {
                 continue;
             }
-            best_item->setInvalid();
+            best_item->lock();
             robots[i].task_type = TaskItem;
             robots[i].route = game_map->getRoute(robots[i].pos, best_item->pos);
             robots[i].item_pos = best_item->pos;
@@ -72,21 +70,70 @@ void Controller::dispatch(int time) {
                 robots[i].task_type = TaskBerth;
                 assignBerth(&robots[i]);
                 robots[i].route = game_map->getRoute(robots[i].pos, robots[i].berth_pos);
-                for (auto &item: game_map->items) {
-                    if (item.pos == robots->item_pos) {
-                        item.setInvalid();
-                        break;
+            } else{
+                /*
+                int berth = assignBerth(&robots[i]);
+                if (berth == -1) {
+                    continue;
+                }
+                robots[i].berth_pos = berths[berth].pos;
+                Item *best_item = nullptr;
+                double best_eval = -1;
+                // find the best item
+                // get dis
+                vector<Item *> item_t;
+                for (int j = game_map->items.size(); j >=game_map->items.size()-game_map->k; --j) {
+                    if(game_map->items[j].is_locked){
+                        continue;
+                    }
+                    if (!game_map->isCommunicated(game_map->items[j].pos, robots[i].pos)) {
+                        continue;
+                    }
+                    item_t.push_back(&game_map->items[j]);
+                }
+                for (auto& item:game_map->items) {
+                      if(item.pos==robots[i].pos){
+                          item_t.push_back(&item);
+                          break;
+                      }
+                }
+                vector<Coord> targ;
+                for (auto it: item_t) targ.push_back((*it).pos);
+                vector<int> dis = game_map->getDisVector(robots[i].pos, targ);
+                if (dis.empty()) continue;
+                for (int j = 0; j < dis.size(); j++) {
+                    double eval = item_t[j]->value /pow((double) dis[j],1);
+                    if(time+dis[j]>item_t[j]->time+item_t[j]->time_before_disappear){
+                        continue;
+                    }
+                    if (best_eval < eval) {
+                        best_item = item_t[j];
+                        best_eval = eval;
                     }
                 }
+                if (best_item == nullptr || best_item->pos == robots[i].item_pos) {
+                    continue;
+                }
+                for (auto& item:game_map->items) {
+                   if(item.pos==robots[i].item_pos){
+                       item.unlock();
+                       break;
+                   }
+                }
+                best_item->lock();
+                robots[i].route = game_map->getRoute(robots[i].pos, best_item->pos);
+                robots[i].item_pos = best_item->pos;*/
             }
         } else {
             if (robots[i].route.empty()) {
                 robots[i].task_type = TaskIdle;
                 for (int j = 0; j < berth_num; ++j) {
                     if (berths[j].pos == robots[i].berth_pos) {
-                        for (auto &item: game_map->items) {
+                        for (auto& item: game_map->items) {
                             if (item.pos == robots[i].item_pos) {
                                 berths[j].addItem(&item);
+                                item.unlock();
+                                item.setInvalid();
                                 break;
                             }
                         }
@@ -133,7 +180,7 @@ void Controller::dispatch(int time) {
             que_tmp.push(i);
         }
     }
-    while (que_tmp.size()) {
+    while (!que_tmp.empty()) {
         int nwid = que_tmp.front();
         que_tmp.pop();
         random_order_tmp.push_back(nwid);
