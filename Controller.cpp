@@ -81,24 +81,25 @@ void Controller::dispatch(int time) {
                 robots[i].route = game_map->getRoute(robots[i].pos, robots[i].berth_pos);
             } else {
                 // re-select item
-                /*
-                if (time % 10 == i) {
+                
+                if (time % 5 == i % 5) {
                     if (robots[i].cur_item == nullptr) continue;
                     Item* new_best_item = getBestItem(robots[i].pos, robots[i].berth_pos);
-                    if (new_best_item != nullptr && new_best_item -> pos != robots[i].item_pos) {
+                    if (new_best_item == nullptr) continue;
+                    auto dis_old = game_map->getDisVector(robots[i].cur_item->pos, vector<Coord>{robots[i].berth_pos, robots[i].pos});
+                    auto dis_new = game_map->getDisVector(new_best_item->pos,      vector<Coord>{robots[i].berth_pos, robots[i].pos});
+                    double eval_old = robots[i].cur_item->value / pow((double) dis_old[0] + dis_old[1], 1);
+                    double eval_new = new_best_item->value      / pow((double) dis_new[0] + dis_new[1], 1);
+                    if (eval_old + 0.001 < eval_new) {
                         new_best_item -> lock();
                         robots[i].cur_item -> unlock();
-                        if(false) {
-                            // reject future update
-                            robots[i].cur_item = nullptr;
-                        } else {
-                            robots[i].cur_item = new_best_item;
-                        }
+                    //  robots[i].cur_item = nullptr; // this line rejects future update
+                        robots[i].cur_item = new_best_item;
                         robots[i].route = game_map->getRoute(robots[i].pos, new_best_item->pos);
                         robots[i].item_pos = new_best_item->pos;
                     }
                 }
-                */
+                
             }
         } else {
             if (robots[i].route.empty()) {
