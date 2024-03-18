@@ -107,7 +107,7 @@ void finish() {
  * 3.尽可能利用轮船运力
  */
 int main() {
-    srand(1);
+    srand(time(0));
     //流程：输入，调度，移动
     //freopen("D:\\24_huawei_com\\WindowsRelease\\record\\test.txt", "r", stdin);
     Init();
