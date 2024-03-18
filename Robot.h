@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include "Utils.h"
+#include "Item.h"
 
 enum RobotTaskType{
     TaskIdle, TaskItem, TaskBerth
@@ -21,6 +22,8 @@ public:
     Coord pos;
     //机器人状态
     int status;
+
+    Item *cur_item;
 
     //任务类型
     RobotTaskType task_type;

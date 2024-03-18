@@ -2,9 +2,9 @@
 // Created by 15461 on 2024/3/8.
 //
 
-#include <random>
+
 #include <algorithm>
-#include <climits>
+#include <set>
 #include <climits>
 #include "Controller.h"
 
@@ -25,33 +25,27 @@ Controller::Controller(Robot *robots, int robot_num, Map *map, Ship *ships, int 
 
 void Controller::dispatch(int time) {
     for (int i = 0; i < robot_num; ++i) {
-        if (robots[i].task_type == TaskIdle) {
-            int berth = assignBerth(&robots[i]);
-            if (berth == -1) {
-                continue;
-            }
-            robots[i].berth_pos = berths[berth].pos;
+        auto getBestItem = [this, &time](Coord robot_pos, Coord berth_pos) -> Item* {
             Item *best_item = nullptr;
             double best_eval = -1;
-            // find the best item
-            // get dis
             vector<Item *> item_t;
             for (auto &item: game_map->items) {
                 if (item.is_locked) {
                     continue;
                 }
-                if (!game_map->isCommunicated(item.pos, robots[i].pos)) {
+                if (!game_map->isCommunicated(item.pos, robot_pos)) {
                     continue;
                 }
                 item_t.push_back(&item);
             }
             vector<Coord> targ;
             for (auto it: item_t) targ.push_back((*it).pos);
-            vector<int> dis = game_map->getDisVector(robots[i].pos, targ);
-            if (dis.empty()) continue;
-            for (int j = 0; j < dis.size(); j++) {
-                double eval = item_t[j]->value /pow((double) dis[j],1);
-                if(time+dis[j]>item_t[j]->time+item_t[j]->time_before_disappear){
+            vector<int> dis1 = game_map->getDisVector(robot_pos, targ);
+            vector<int> dis2 = game_map->getDisVector(berth_pos, targ);
+            if (dis1.empty()) return nullptr;
+            for (int j = 0; j < dis1.size(); j++) {
+                double eval = item_t[j]->value /pow((double) dis1[j] + dis2[j], 1);
+                if (time + dis1[j] + dis2[j] > item_t[j] -> time + item_t[j] -> time_before_disappear) {
                     continue;
                 }
                 if (best_eval < eval) {
@@ -59,6 +53,19 @@ void Controller::dispatch(int time) {
                     best_eval = eval;
                 }
             }
+            return best_item;
+        };
+
+        if (robots[i].task_type == TaskIdle) {
+            int berth = assignBerth(&robots[i]);
+            if (berth == -1) {
+                continue;
+            }
+            robots[i].berth_pos = berths[berth].pos;
+            Item *best_item = nullptr;
+            // find the best item
+            best_item = getBestItem(robots[i].pos, robots[i].berth_pos);
+
             if (best_item == nullptr || best_item->pos == robots[i].item_pos) {
                 continue;
             }
@@ -66,64 +73,32 @@ void Controller::dispatch(int time) {
             robots[i].task_type = TaskItem;
             robots[i].route = game_map->getRoute(robots[i].pos, best_item->pos);
             robots[i].item_pos = best_item->pos;
+            robots[i].cur_item = best_item;
         } else if (robots[i].task_type == TaskItem) {
             if (robots[i].route.empty()) {
                 robots[i].task_type = TaskBerth;
                 assignBerth(&robots[i]);
                 robots[i].route = game_map->getRoute(robots[i].pos, robots[i].berth_pos);
-            } else{
+            } else {
+                // re-select item
                 /*
-                int berth = assignBerth(&robots[i]);
-                if (berth == -1) {
-                    continue;
-                }
-                robots[i].berth_pos = berths[berth].pos;
-                Item *best_item = nullptr;
-                double best_eval = -1;
-                // find the best item
-                // get dis
-                vector<Item *> item_t;
-                for (int j = game_map->items.size(); j >=game_map->items.size()-game_map->k; --j) {
-                    if(game_map->items[j].is_locked){
-                        continue;
-                    }
-                    if (!game_map->isCommunicated(game_map->items[j].pos, robots[i].pos)) {
-                        continue;
-                    }
-                    item_t.push_back(&game_map->items[j]);
-                }
-                for (auto& item:game_map->items) {
-                      if(item.pos==robots[i].pos){
-                          item_t.push_back(&item);
-                          break;
-                      }
-                }
-                vector<Coord> targ;
-                for (auto it: item_t) targ.push_back((*it).pos);
-                vector<int> dis = game_map->getDisVector(robots[i].pos, targ);
-                if (dis.empty()) continue;
-                for (int j = 0; j < dis.size(); j++) {
-                    double eval = item_t[j]->value /pow((double) dis[j],1);
-                    if(time+dis[j]>item_t[j]->time+item_t[j]->time_before_disappear){
-                        continue;
-                    }
-                    if (best_eval < eval) {
-                        best_item = item_t[j];
-                        best_eval = eval;
+                if (time % 10 == i) {
+                    if (robots[i].cur_item == nullptr) continue;
+                    Item* new_best_item = getBestItem(robots[i].pos, robots[i].berth_pos);
+                    if (new_best_item != nullptr && new_best_item -> pos != robots[i].item_pos) {
+                        new_best_item -> lock();
+                        robots[i].cur_item -> unlock();
+                        if(false) {
+                            // reject future update
+                            robots[i].cur_item = nullptr;
+                        } else {
+                            robots[i].cur_item = new_best_item;
+                        }
+                        robots[i].route = game_map->getRoute(robots[i].pos, new_best_item->pos);
+                        robots[i].item_pos = new_best_item->pos;
                     }
                 }
-                if (best_item == nullptr || best_item->pos == robots[i].item_pos) {
-                    continue;
-                }
-                for (auto& item:game_map->items) {
-                   if(item.pos==robots[i].item_pos){
-                       item.unlock();
-                       break;
-                   }
-                }
-                best_item->lock();
-                robots[i].route = game_map->getRoute(robots[i].pos, best_item->pos);
-                robots[i].item_pos = best_item->pos;*/
+                */
             }
         } else {
             if (robots[i].route.empty()) {
@@ -235,11 +210,16 @@ void Controller::dispatch(int time) {
                     exit.push_back(robots[now_k].pos);
                 }
                 // 避开要避让的机器人将要走的路
-                const int retreat_length = 40;
+                const int retreat_length = 512;
+                const int uniq_length = 128;
+                set<Coord> ret_pos_temp;
                 for (int k = 1; k <= retreat_length; k++) {
                     if (k > robots[now_j].route.size()) break;
-                    exit.push_back(*(robots[now_j].route.end() - k));
+                    ret_pos_temp.insert(*(robots[now_j].route.end() - k));
+                    if(ret_pos_temp.size() >= uniq_length) break;
                 }
+                for(auto pos: ret_pos_temp) exit.push_back(pos);
+
                 vector<Coord> result = game_map->getFreeSpace(robots[now_i].pos, ban, exit);
                 for (auto it: result) {
                     robots[now_i].route.push_back(it);
@@ -264,7 +244,7 @@ void Controller::dispatch(int time) {
                 });
                 // 尝试等一下来避免卡死
                 //  robots[now_j].route.push_back(robots[now_j].pos);
-                break;
+              break;
             }
         }
     }

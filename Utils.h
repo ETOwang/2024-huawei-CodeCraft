@@ -3,6 +3,7 @@
 
 #include <array>
 #include <cstdio>
+#include <random>
 
 using namespace std;
 
@@ -16,5 +17,8 @@ const int log_level = 2;
 // 2 = debug
 
 bool shouldLog(int x);
+
+static random_device r_d;
+static mt19937 mt199(r_d());
 
 #endif //INC_24_HUAWEI_UTILS_H
