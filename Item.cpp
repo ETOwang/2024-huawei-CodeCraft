@@ -8,9 +8,9 @@ Item::Item(int time, Coord pos, int value){
     this -> time = time;
     this -> pos = pos;
     this -> value = value;
+    this->is_locked= false;
 }
 
-const int time_before_disappear = 1000;
 bool Item::isValid(int time){
     if(time - this -> time > time_before_disappear) return false;
     return true;
@@ -19,3 +19,12 @@ bool Item::isValid(int time){
 void Item::setInvalid(){
     this -> time = -time_before_disappear;
 }
+
+void Item::lock() {
+    is_locked= true;
+}
+
+void Item::unlock() {
+    is_locked= false;
+}
+

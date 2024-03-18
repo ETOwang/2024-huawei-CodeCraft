@@ -14,6 +14,7 @@ const int SIZE = 200;
 
 class Map {
 public:
+    int k;
     //当前帧数
     int time;
     //地图

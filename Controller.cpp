@@ -5,7 +5,7 @@
 #include <random>
 #include <algorithm>
 #include <climits>
-
+#include <climits>
 #include "Controller.h"
 
 Controller::Controller() {
@@ -27,17 +27,17 @@ void Controller::dispatch(int time) {
     for (int i = 0; i < robot_num; ++i) {
         if (robots[i].task_type == TaskIdle) {
             int berth = assignBerth(&robots[i]);
-            if(berth==-1){
+            if (berth == -1) {
                 continue;
             }
             robots[i].berth_pos = berths[berth].pos;
             Item *best_item = nullptr;
             double best_eval = -1;
             // find the best item
-            // get dis...
-            vector<Item*> item_t;
+            // get dis
+            vector<Item *> item_t;
             for (auto &item: game_map->items) {
-                if (!item.isValid(time)) {
+                if (item.is_locked) {
                     continue;
                 }
                 if (!game_map->isCommunicated(item.pos, robots[i].pos)) {
@@ -46,44 +46,95 @@ void Controller::dispatch(int time) {
                 item_t.push_back(&item);
             }
             vector<Coord> targ;
-            for (auto it:item_t) targ.push_back((*it).pos);
+            for (auto it: item_t) targ.push_back((*it).pos);
             vector<int> dis = game_map->getDisVector(robots[i].pos, targ);
-            if(!dis.size()) continue;
-            for(int i = 0; i < dis.size(); i ++) {
-                double eval = item_t[i]->value /
-                              pow((double) dis[i] ,//+ getdis(item.pos, berths[berth].pos),
-                                  1);
+            if (dis.empty()) continue;
+            for (int j = 0; j < dis.size(); j++) {
+                double eval = item_t[j]->value /pow((double) dis[j],1);
+                if(time+dis[j]>item_t[j]->time+item_t[j]->time_before_disappear){
+                    continue;
+                }
                 if (best_eval < eval) {
-                    best_item = item_t[i];
+                    best_item = item_t[j];
                     best_eval = eval;
                 }
             }
-            if (best_item == nullptr||best_item->pos==robots[i].item_pos) {
+            if (best_item == nullptr || best_item->pos == robots[i].item_pos) {
                 continue;
             }
-            best_item->setInvalid();
+            best_item->lock();
             robots[i].task_type = TaskItem;
             robots[i].route = game_map->getRoute(robots[i].pos, best_item->pos);
             robots[i].item_pos = best_item->pos;
         } else if (robots[i].task_type == TaskItem) {
             if (robots[i].route.empty()) {
                 robots[i].task_type = TaskBerth;
+                assignBerth(&robots[i]);
                 robots[i].route = game_map->getRoute(robots[i].pos, robots[i].berth_pos);
-                for (auto &item: game_map->items) {
-                    if (item.pos == robots->item_pos) {
-                        item.setInvalid();
-                        break;
+            } else{
+                /*
+                int berth = assignBerth(&robots[i]);
+                if (berth == -1) {
+                    continue;
+                }
+                robots[i].berth_pos = berths[berth].pos;
+                Item *best_item = nullptr;
+                double best_eval = -1;
+                // find the best item
+                // get dis
+                vector<Item *> item_t;
+                for (int j = game_map->items.size(); j >=game_map->items.size()-game_map->k; --j) {
+                    if(game_map->items[j].is_locked){
+                        continue;
+                    }
+                    if (!game_map->isCommunicated(game_map->items[j].pos, robots[i].pos)) {
+                        continue;
+                    }
+                    item_t.push_back(&game_map->items[j]);
+                }
+                for (auto& item:game_map->items) {
+                      if(item.pos==robots[i].pos){
+                          item_t.push_back(&item);
+                          break;
+                      }
+                }
+                vector<Coord> targ;
+                for (auto it: item_t) targ.push_back((*it).pos);
+                vector<int> dis = game_map->getDisVector(robots[i].pos, targ);
+                if (dis.empty()) continue;
+                for (int j = 0; j < dis.size(); j++) {
+                    double eval = item_t[j]->value /pow((double) dis[j],1);
+                    if(time+dis[j]>item_t[j]->time+item_t[j]->time_before_disappear){
+                        continue;
+                    }
+                    if (best_eval < eval) {
+                        best_item = item_t[j];
+                        best_eval = eval;
                     }
                 }
+                if (best_item == nullptr || best_item->pos == robots[i].item_pos) {
+                    continue;
+                }
+                for (auto& item:game_map->items) {
+                   if(item.pos==robots[i].item_pos){
+                       item.unlock();
+                       break;
+                   }
+                }
+                best_item->lock();
+                robots[i].route = game_map->getRoute(robots[i].pos, best_item->pos);
+                robots[i].item_pos = best_item->pos;*/
             }
         } else {
             if (robots[i].route.empty()) {
                 robots[i].task_type = TaskIdle;
                 for (int j = 0; j < berth_num; ++j) {
                     if (berths[j].pos == robots[i].berth_pos) {
-                        for (auto &item: game_map->items) {
+                        for (auto& item: game_map->items) {
                             if (item.pos == robots[i].item_pos) {
                                 berths[j].addItem(&item);
+                                item.unlock();
+                                item.setInvalid();
                                 break;
                             }
                         }
@@ -93,11 +144,19 @@ void Controller::dispatch(int time) {
         }
     }
     for (int i = 0; i < berth_num; ++i) {
-        if (berths[i].ship == nullptr) {
+        if(berths[i].ships.empty()&&3*berths[i].transport_time+time>15000){
+            used.erase(i);
+            continue;
+        }
+        if (berths[i].ships.empty()) {
             continue;
         }
         if (berths[i].transport_time + time >= 15000) {
-            berths[i].ship->force_to_go = true;
+            while (!berths[i].ships.empty()){
+                berths[i].ships.front()->force_to_go= true;
+                berths[i].ships.pop();
+            }
+            used.erase(i);
         }
     }
 //  array<int, 10> random_order{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -105,30 +164,30 @@ void Controller::dispatch(int time) {
     vector<int> random_order_tmp, deg_tmp;
     queue<int> que_tmp;
     for (int i = 0; i < robot_num; ++i) {
-        array<Coord, 4> diff = {Coord{-1, 0}, Coord{1, 0}, Coord{0, -1}, Coord{0,1}};
+        array<Coord, 4> diff = {Coord{-1, 0}, Coord{1, 0}, Coord{0, -1}, Coord{0, 1}};
         int deg = 0;
-        for (auto it:diff) {
+        for (auto it: diff) {
             Coord nw = robots[i].pos;
             Coord to = Coord{nw[0] + it[0], nw[1] + it[1]};
             int add = 1;
-            if (!game_map -> isGround(to)) add = 0;
+            if (!game_map->isGround(to)) add = 0;
             for (int j = 0; j < robot_num; ++j) {
                 if (robots[j].pos == to) add = 0;
             }
             deg += add;
         }
         deg_tmp.push_back(deg);
-        if(deg){
+        if (deg) {
             que_tmp.push(i);
         }
     }
-    while(que_tmp.size()){
+    while (!que_tmp.empty()) {
         int nwid = que_tmp.front();
         que_tmp.pop();
         random_order_tmp.push_back(nwid);
-        array<Coord, 4> diff = {Coord{-1, 0}, Coord{1, 0}, Coord{0, -1}, Coord{0,1}};
+        array<Coord, 4> diff = {Coord{-1, 0}, Coord{1, 0}, Coord{0, -1}, Coord{0, 1}};
         int deg = 0;
-        for (auto it:diff) {
+        for (auto it: diff) {
             Coord nw = robots[nwid].pos;
             Coord to = Coord{nw[0] + it[0], nw[1] + it[1]};
             for (int j = 0; j < robot_num; ++j) {
@@ -218,25 +277,16 @@ void Controller::dispatch(int time) {
         }
     }
     //船舶需要船的引用
-    for (int i = 0; i < ships_num; ++i) {
-        if (ships[i].status == 1 && ships[i].target_id == -1) {
-            for (auto berth: used) {
-                if (berths[berth.first].ship == nullptr) {
-                    berths[berth.first].ship = &ships[i];
-                    ships[i].target_id = berth.first;
-                    break;
-                }
-            }
-        }
-    }
-
+    assignShip();
 }
 
 int Controller::assignBerth(Robot *robot) {
     if (robot->berth_pos[0] != -1) {
         for (int i = 0; i < berth_num; ++i) {
             if (berths[i].pos == robot->berth_pos) {
-                return i;
+                if(used.count(i)){
+                    return i;
+                }
             }
         }
     }
@@ -290,7 +340,7 @@ void Controller::preAssign() {
     //确定泊位与机器人的连通性
     for (int i = 0; i < berth_num; ++i) {
         for (int j = 0; j < robot_num; ++j) {
-            if (game_map->isCommunicated(berths[i].pos, robots[j].pos)){
+            if (game_map->isCommunicated(berths[i].pos, robots[j].pos)) {
                 berthConnected[i]++;
             }
         }
@@ -298,18 +348,23 @@ void Controller::preAssign() {
     //确定泊位间距离
     for (int i = 0; i < berth_num; ++i) {
         for (int j = 0; j < berth_num; ++j) {
-            berthDistance[i] += sqrt(pow((berths[i].pos[0] - berths[j].pos[0]), 2) + pow((berths[i].pos[1] -berths[j].pos[1]), 2));
+            berthDistance[i] += sqrt(
+                    pow((berths[i].pos[0] - berths[j].pos[0]), 2) + pow((berths[i].pos[1] - berths[j].pos[1]), 2));
         }
     }
     for (int i = 0; i < berth_num; ++i) {
+        if (berthConnected[i] == 0) {
+            berthValue[i] = INT_MIN;
+            continue;
+        }
         berthValue[i] = para1 * berthConnected[i] + para2 * berths[i].loading_speed -
-                para3 * berths[i].transport_time + para4 * berthDistance[i];
+                        para3 * berths[i].transport_time + para4 * berthDistance[i];
     }
     for (int i = 0; i < 5; ++i) {
         int temp = 0;
         int max = INT_MIN;
         for (int j = 0; j < berth_num; ++j) {
-            if (berthValue[j] > max){
+            if (berthValue[j] > max) {
                 temp = j;
                 max = berthValue[j];
             }
@@ -317,4 +372,41 @@ void Controller::preAssign() {
         berthValue[temp] = INT_MIN;
         used[temp] = 0;
     }
+}
+
+void Controller::assignShip() {
+    int count=0;
+    for (int i = 0; i < ships_num; ++i) {
+        if (ships[i].status == 1 && ships[i].target_id == -1) {
+            for (auto berth: used) {
+                if (berths[berth.first].ships.empty()) {
+                    count++;
+                    berths[berth.first].ships.push(&ships[i]);
+                    ships[i].target_id = berth.first;
+                    break;
+                }
+            }
+        }
+    }
+    if(count==ships_num){
+        return;
+    }
+    for (int i = 0; i < ships_num; ++i) {
+        if (ships[i].status == 1 && ships[i].target_id == -1) {
+            for (auto berth: used) {
+                if (haveChanceToGo(berth.first)) {
+                    berths[berth.first].ships.push(&ships[i]);
+                    ships[i].target_id = berth.first;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+bool Controller::haveChanceToGo(int berth) {
+    if(2*berths[berth].transport_time+GAP*berths[berth].ships.size()+game_map->time>15000){
+        return false;
+    }
+    return true;
 }

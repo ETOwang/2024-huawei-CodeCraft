@@ -25,7 +25,7 @@ public:
     //现有货物
     queue<Item *> goods;
     //泊位上的船
-    Ship *ship;
+    queue<Ship*>ships;
 
     friend bool operator < (const Berth& a,const Berth& b);
 

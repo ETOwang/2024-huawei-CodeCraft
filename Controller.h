@@ -6,8 +6,9 @@
 #define INC_24_HUAWEI_CONTROLLER_H
 #define para1 0.1
 #define para2 0.2
-#define para3 0.4
-#define para4 0.3
+#define para3 0.5
+#define para4 1
+#define GAP 200
 #include <map>
 #include "Utils.h"
 #include "Item.h"
@@ -33,6 +34,8 @@ public:
     bool isCollision(Robot* robot1,Robot* robot2);
     bool isSwap(Robot* robot1,Robot* robot2);
     void preAssign();
+    void assignShip();
+    bool haveChanceToGo(int berth);
 };
 
 
