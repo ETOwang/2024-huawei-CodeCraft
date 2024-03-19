@@ -298,6 +298,8 @@ void Controller::assignShip() {
                             berths[ships[i].target_id].unlock();
                             ships[i].target_id=j;
                             ships[i].force_to_ship=j;
+                            berths[j].ships.push(&ships[i]);
+                            berths[j].lock();
                             break;
                         }
                     }
