@@ -9,9 +9,15 @@ Ship::Ship(){
     force_to_go= false;
     canShip= true;
     canGo= false;
+    force_to_ship=-1;
 }
 void Ship::move() {
     if(status != 1){
+        return;
+    }
+    if(force_to_ship!=-1){
+        ship(target_id);
+        force_to_ship=-1;
         return;
     }
     if(canGo&&force_to_go){

@@ -60,7 +60,6 @@ void Init() {
         ships[i].id=i;
     }
     game_map.build();
-    controller.preAssign();
 }
 
 //每一帧读入，并更新相应信息，返回当前帧信息
@@ -110,7 +109,7 @@ void finish() {
 int main() {
 //  srand(time(0));
     //流程：输入，调度，移动
-    //freopen("D:\\24_huawei_com\\WindowsRelease\\record\\test.txt", "r", stdin);
+    freopen("D:\\24_huawei_com\\WindowsRelease\\record\\test.txt", "r", stdin);
     Init();
     finish();
     while (true) {
