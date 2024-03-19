@@ -34,6 +34,7 @@ public:
     bool isCollision(Robot* robot1,Robot* robot2);
     bool isSwap(Robot* robot1,Robot* robot2);
     void preAssign();
+    void preAssign_ex1();
     void assignShip();
     bool haveChanceToGo(int berth);
 };

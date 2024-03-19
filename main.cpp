@@ -60,7 +60,8 @@ void Init() {
         ships[i].id=i;
     }
     game_map.build();
-    controller.preAssign();
+//  controller.preAssign();
+    controller.preAssign_ex1();
 }
 
 //每一帧读入，并更新相应信息，返回当前帧信息
