@@ -23,6 +23,7 @@ public:
     int robot_num;
     int ships_num;
     int berth_num;
+    int berth_index;
     Controller(Robot* robots,int robot_num,Map* map,Ship* ships,int ship_num,Berth* berths,int berth_num);
     Controller();
     //主调度函数，为所有目标分配任务（如果需要）
@@ -33,6 +34,7 @@ public:
     void assignShip();
     bool haveChanceToGo(int berth);
     void judgeTime(int time);
+    void moveToBerth();
 };
 
 

@@ -60,6 +60,15 @@ void Init() {
         ships[i].id=i;
     }
     game_map.build();
+    int fastest_move = 10000;
+    int index1 = 0;
+    for (int i = 0; i < berth_num; ++i) {
+        if (berths[i].transport_time < fastest_move){
+            fastest_move = berths[i].transport_time;
+            index1 = i;
+        }
+    }
+    controller.berth_index = index1;
 }
 
 //每一帧读入，并更新相应信息，返回当前帧信息

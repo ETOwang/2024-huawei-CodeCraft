@@ -274,6 +274,7 @@ bool Controller::isSwap(Robot *robot1, Robot *robot2) {
 
 
 void Controller::assignShip() {
+    moveToBerth();
     for (int i = 0; i < ships_num; ++i) {
         if (ships[i].status == 1 ) {
             if(ships[i].capacity==ships[i].item_count){
@@ -281,7 +282,7 @@ void Controller::assignShip() {
             }
             if(ships[i].target_id==-1){
                 for (int j = 0; j < berth_num; ++j) {
-                    if(berths[j].is_chose){
+                    if(berths[j].is_chose||!berths[j].can_be_used){
                         continue;
                     } else{
                         ships[i].target_id=j;
@@ -292,19 +293,24 @@ void Controller::assignShip() {
                 }
             } else{
                 if(berths[ships[i].target_id].goods.empty()){
+                    int max=0;
+                    int index=ships[i].target_id;
                     for (int j = 0; j < berth_num; ++j) {
-                        if(!haveChanceToGo(j)||berths[j].goods.empty()||berths[j].is_chose){
+                        if(!haveChanceToGo(j)||berths[j].goods.empty()||berths[j].is_chose||!berths[j].can_be_used){
                             continue;
                         }
-                        if(TRANSPORT+berths[j].goods.size()/berths[j].loading_speed<berths[j].goods.size()*EXPECTED){
-                            berths[ships[i].target_id].ships.pop();
-                            berths[ships[i].target_id].unlock();
-                            ships[i].target_id=j;
-                            ships[i].force_to_ship=j;
-                            berths[j].ships.push(&ships[i]);
-                            berths[j].lock();
-                            break;
+                        if(berths[j].goods.size()>max){
+                            max=berths[j].goods.size();
+                            index=j;
                         }
+                    }
+                    if(index!=ships[i].target_id){
+                        berths[ships[i].target_id].ships.pop();
+                        berths[ships[i].target_id].unlock();
+                        ships[i].target_id=index;
+                        ships[i].force_to_ship=index;
+                        berths[index].ships.push(&ships[i]);
+                        berths[index].lock();
                     }
                 }
             }
@@ -330,6 +336,15 @@ void Controller::judgeTime(int time) {
                 berths[i].ships.pop();
             }
             berths[i].can_be_used= false;
+        }
+    }
+}
+void Controller::moveToBerth() {
+    for (int i = 0; i < ships_num; ++i) {
+        if (ships[i].item_count == ships[i].capacity &&
+            berths[ships[i].target_id].transport_time > TRANSPORT + berths[this->berth_index].transport_time){
+            ships[i].force_to_ship = this->berth_index;
+            ships[i].target_id = this->berth_index;
         }
     }
 }
