@@ -276,6 +276,9 @@ bool Controller::isSwap(Robot *robot1, Robot *robot2) {
 void Controller::assignShip() {
     for (int i = 0; i < ships_num; ++i) {
         if (ships[i].status == 1 ) {
+            if(ships[i].capacity==ships[i].item_count){
+                continue;
+            }
             if(ships[i].target_id==-1){
                 for (int j = 0; j < berth_num; ++j) {
                     if(berths[j].is_chose){
