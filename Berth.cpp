@@ -9,8 +9,12 @@ Berth::Berth(int id, Coord pos, int transport_time, int loading_speed){
     this -> pos = pos;
     this -> transport_time = transport_time;
     this -> loading_speed = loading_speed;
+    this->can_be_used= true;
+    this->is_chose= false;
 }
 Berth::Berth(){
+    this->can_be_used= true;
+    this->is_chose= false;
 }
 
 void Berth::addItem(Item *item) {
@@ -35,8 +39,19 @@ void Berth::update() {
     if(ships.front()->item_count==ships.front()->capacity){
         ships.pop();
     }
+    if(ships.empty()){
+        unlock();
+    }
 }
 
 bool operator<(const Berth& a, const Berth& b) {
     return a.transport_time<b.transport_time;
+}
+
+void Berth::lock() {
+    is_chose= true;
+}
+
+void Berth::unlock() {
+    is_chose= false;
 }

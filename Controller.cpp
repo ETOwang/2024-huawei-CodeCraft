@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <set>
 #include <climits>
-#include <cstring>
 #include "Controller.h"
 
 Controller::Controller() {
@@ -26,7 +25,7 @@ Controller::Controller(Robot *robots, int robot_num, Map *map, Ship *ships, int 
 
 void Controller::dispatch(int time) {
     for (int i = 0; i < robot_num; ++i) {
-        auto getBestItem = [this, &time](Coord robot_pos, Coord berth_pos) -> Item* {
+        auto getBestItem = [this, &time](Coord robot_pos, Coord berth_pos) -> Item * {
             Item *best_item = nullptr;
             double best_eval = -1;
             vector<Item *> item_t;
@@ -45,8 +44,9 @@ void Controller::dispatch(int time) {
             vector<int> dis2 = game_map->getDisVector(berth_pos, targ);
             if (dis1.empty()) return nullptr;
             for (int j = 0; j < dis1.size(); j++) {
-                double eval = item_t[j]->value /pow((double) dis1[j] + dis2[j], 1);
-                if (time + dis1[j] + dis2[j] > item_t[j] -> time + item_t[j] -> time_before_disappear) {
+                double eval = item_t[j]->value
+                        / pow((double) dis1[j] + dis2[j], 1);
+                if (time + dis1[j] + dis2[j] > item_t[j]->time + item_t[j]->time_before_disappear) {
                     continue;
                 }
                 if (best_eval < eval) {
@@ -82,8 +82,8 @@ void Controller::dispatch(int time) {
                 robots[i].route = game_map->getRoute(robots[i].pos, robots[i].berth_pos);
             } else {
                 // re-select item
-#pragma message("re-select disabled.")/*
-                if (time % 10 == i % 10) {
+
+                /*if (time % 10 == i) {
                     if (robots[i].cur_item == nullptr) continue;
                     Item* new_best_item = getBestItem(robots[i].pos, robots[i].berth_pos);
                     if (new_best_item == nullptr) continue;
@@ -99,15 +99,15 @@ void Controller::dispatch(int time) {
                         robots[i].route = game_map->getRoute(robots[i].pos, new_best_item->pos);
                         robots[i].item_pos = new_best_item->pos;
                     }
-                }
-                //*/
+                }*/
+
             }
         } else {
             if (robots[i].route.empty()) {
                 robots[i].task_type = TaskIdle;
                 for (int j = 0; j < berth_num; ++j) {
                     if (berths[j].pos == robots[i].berth_pos) {
-                        for (auto& item: game_map->items) {
+                        for (auto &item: game_map->items) {
                             if (item.pos == robots[i].item_pos) {
                                 berths[j].addItem(&item);
                                 item.unlock();
@@ -120,22 +120,7 @@ void Controller::dispatch(int time) {
             }
         }
     }
-    for (int i = 0; i < berth_num; ++i) {
-        if(berths[i].ships.empty()&&3*berths[i].transport_time+time>15000){
-            used.erase(i);
-            continue;
-        }
-        if (berths[i].ships.empty()) {
-            continue;
-        }
-        if (berths[i].transport_time + time >= 15000) {
-            while (!berths[i].ships.empty()){
-                berths[i].ships.front()->force_to_go= true;
-                berths[i].ships.pop();
-            }
-            used.erase(i);
-        }
-    }
+    judgeTime(time);
 //  array<int, 10> random_order{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 //  random_shuffle(random_order.begin(), random_order.end());
     vector<int> random_order_tmp, deg_tmp;
@@ -212,15 +197,15 @@ void Controller::dispatch(int time) {
                     exit.push_back(robots[now_k].pos);
                 }
                 // 避开要避让的机器人将要走的路
-                const int retreat_length = 256;
-                const int uniq_length = 64;
+                const int retreat_length = 512;
+                const int uniq_length = 128;
                 set<Coord> ret_pos_temp;
                 for (int k = 1; k <= retreat_length; k++) {
                     if (k > robots[now_j].route.size()) break;
                     ret_pos_temp.insert(*(robots[now_j].route.end() - k));
-                    if(ret_pos_temp.size() >= uniq_length) break;
+                    if (ret_pos_temp.size() >= uniq_length) break;
                 }
-                for(auto pos: ret_pos_temp) exit.push_back(pos);
+                for (auto pos: ret_pos_temp) exit.push_back(pos);
 
                 vector<Coord> result = game_map->getFreeSpace(robots[now_i].pos, ban, exit);
                 for (auto it: result) {
@@ -263,34 +248,7 @@ void Controller::dispatch(int time) {
 }
 
 int Controller::assignBerth(Robot *robot) {
-    if (robot->berth_pos[0] != -1) {
-        for (int i = 0; i < berth_num; ++i) {
-            if (berths[i].pos == robot->berth_pos) {
-                if(used.count(i)){
-                    return i;
-                }
-            }
-        }
-    }
-    for (auto &item: used) {
-        if (item.second<2 && game_map->isCommunicated(berths[item.first].pos, robot->pos)) {
-            item.second++;
-            return item.first;
-        }
-    }
-    for (auto &item: used) {
-        if (game_map->isCommunicated(berths[item.first].pos, robot->pos)) {
-            item.second++;
-            return item.first;
-        }
-    }
-    for (int i = 0; i < berth_num; ++i) {
-        if(!used.count(i)&&game_map->isCommunicated(berths[i].pos,robot->pos)){
-            used[i]=1;
-            return i;
-        }
-    }
-    return -1;
+    return robot->id;
 }
 
 bool Controller::isCollision(Robot *robot1, Robot *robot2) {
@@ -314,173 +272,40 @@ bool Controller::isSwap(Robot *robot1, Robot *robot2) {
     return false;
 }
 
-//泊位预分配
-void Controller::preAssign() {
-    double berthValue[berth_num];
-    int berthConnected[berth_num];
-    double berthDistance[berth_num];
-    //确定泊位与机器人的连通性
-    for (int i = 0; i < berth_num; ++i) {
-        for (int j = 0; j < robot_num; ++j) {
-            if (game_map->isCommunicated(berths[i].pos, robots[j].pos)) {
-                berthConnected[i]++;
-            }
-        }
-    }
-    //确定泊位间距离
-    for (int i = 0; i < berth_num; ++i) {
-        for (int j = 0; j < berth_num; ++j) {
-            berthDistance[i] += sqrt(
-                    pow((berths[i].pos[0] - berths[j].pos[0]), 2) + pow((berths[i].pos[1] - berths[j].pos[1]), 2));
-        }
-    }
-    for (int i = 0; i < berth_num; ++i) {
-        if (berthConnected[i] == 0) {
-            berthValue[i] = INT_MIN;
-            continue;
-        }
-        berthValue[i] = para1 * berthConnected[i] + para2 * berths[i].loading_speed -
-                        para3 * berths[i].transport_time + para4 * berthDistance[i];
-    }
-    for (int i = 0; i < 5; ++i) {
-        int temp = 0;
-        int max = INT_MIN;
-        for (int j = 0; j < berth_num; ++j) {
-            if (berthValue[j] > max) {
-                temp = j;
-                max = berthValue[j];
-            }
-        }
-        berthValue[temp] = INT_MIN;
-        used[temp] = 0;
-    }
-}
-
-
-void Controller::preAssign_ex1() {
-    double mapValue[SIZE][SIZE];
-    int    mapVis  [SIZE][SIZE];
-    // I don't want coupling, but it's so unavoidable. :(
-    const int SIZE = 200;
-    const int BERTH_COUNT = 10;
-    const int BERTH_ASSIGN = 5;
-
-    auto clear_map = [&mapValue, &SIZE](){
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                mapValue[i][j] = 0.0f;
-            }
-        }
-    };
-
-    auto clear_vis = [&mapVis](){
-        memset(mapVis, 0, sizeof(mapVis));
-    };
-
-    auto calc_val = [&mapValue, &SIZE]() -> double {
-        double result = 0;
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                result += mapValue[i][j];
-            }
-        }
-        return result;
-    };
-
-    auto bfs_berth = [&](Berth *berth){
-        double base = 1; // basic value from specific berth
-        queue<pair<Coord, int>> que;
-
-        auto push = [&mapVis, &que](Coord pos, int dis){
-            mapVis[pos[0]][pos[1]] = true;
-            que.push(make_pair(pos, dis));
-        };
-
-        auto update = [&mapValue](Coord pos, int dis, double exv){
-            if(dis == 0) dis = 1;
-            mapValue[pos[0]][pos[1]] = max(mapValue[pos[0]][pos[1]], 1.0 * exv / dis);
-        };
-
-        push(berth->pos, 0);
-
-        while (que.size()) {
-            auto top = que.front();
-            que.pop();
-
-            update(top.first, top.second, pow(berth->transport_time + 10, -0.3));
-
-            array<Coord, 4> diff{Coord{-1, 0}, Coord{+1, 0}, Coord{0, -1}, Coord{0, +1}};
-            for (auto it : diff) {
-                Coord nw = top.first;
-                Coord nxt = Coord{nw[0] + it[0], nw[1] + it[1]};
-                if (game_map->isGround(nxt) && !mapVis[nxt[0]][nxt[1]]) {
-                    push(nxt, top.second + 1);
-                }
-            }
-        }
-    };
-
-    vector<int> best_sol;
-    double best_value = -1;
-
-    int debug_count = 0;
-    int debug_max_count = 252;
-
-    for (int ms = (1 << BERTH_ASSIGN) - 1; ms < 1 << BERTH_COUNT; ({int x = ms & -ms, y = ms + x; ms = ((ms&~y) / x >> 1) | y;})) {
-        // ms is {subset | size = 5}
-        debug_count ++;
-#pragma message("randomly discard certain conbinattions to get faster (maybe unnecessary)")
-        if ((rand() & 0x8) == 0x8) continue;
-    //  cerr << debug_count << "/" << debug_max_count << endl;
-
-        vector<int> berth_temp;
-        double val_temp = 0;
-        for (int i = 0; i < BERTH_COUNT; i++) {
-            if ((1 << i) & ms) {
-                berth_temp.push_back(i);
-            }
-        }
-        clear_map();
-        for (auto it : berth_temp) {
-            clear_vis();
-            bfs_berth(&berths[it]);
-        }
-        val_temp = calc_val();
-
-        if (val_temp > best_value) {
-            best_value = val_temp;
-            best_sol = berth_temp;
-        }
-    }
-    for (auto it : best_sol) {
-        used[it] = 0;
-    }
-}
 
 void Controller::assignShip() {
-    int count=0;
     for (int i = 0; i < ships_num; ++i) {
-        if (ships[i].status == 1 && ships[i].target_id == -1) {
-            for (auto berth: used) {
-                if (berths[berth.first].ships.empty()) {
-                    count++;
-                    berths[berth.first].ships.push(&ships[i]);
-                    ships[i].target_id = berth.first;
-                    break;
-                }
+        if (ships[i].status == 1 ) {
+            if(ships[i].capacity==ships[i].item_count){
+                continue;
             }
-        }
-    }
-    if(count==ships_num){
-        return;
-    }
-    for (int i = 0; i < ships_num; ++i) {
-        if (ships[i].status == 1 && ships[i].target_id == -1) {
-            for (auto berth: used) {
-                if (haveChanceToGo(berth.first)) {
-                    berths[berth.first].ships.push(&ships[i]);
-                    ships[i].target_id = berth.first;
-                    break;
+            if(ships[i].target_id==-1){
+                for (int j = 0; j < berth_num; ++j) {
+                    if(berths[j].is_chose){
+                        continue;
+                    } else{
+                        ships[i].target_id=j;
+                        berths[j].lock();
+                        berths[j].ships.push(&ships[i]);
+                        break;
+                    }
+                }
+            } else{
+                if(berths[ships[i].target_id].goods.empty()){
+                    for (int j = 0; j < berth_num; ++j) {
+                        if(!haveChanceToGo(j)||berths[j].goods.empty()||berths[j].is_chose){
+                            continue;
+                        }
+                        if(TRANSPORT+berths[j].goods.size()/berths[j].loading_speed<berths[j].goods.size()*EXPECTED){
+                            berths[ships[i].target_id].ships.pop();
+                            berths[ships[i].target_id].unlock();
+                            ships[i].target_id=j;
+                            ships[i].force_to_ship=j;
+                            berths[j].ships.push(&ships[i]);
+                            berths[j].lock();
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -488,8 +313,23 @@ void Controller::assignShip() {
 }
 
 bool Controller::haveChanceToGo(int berth) {
-    if(2*berths[berth].transport_time+GAP*berths[berth].ships.size()+game_map->time>15000){
+    if (berths[berth].transport_time + TRANSPORT+game_map->time>15000) {
         return false;
     }
     return true;
+}
+
+void Controller::judgeTime(int time) {
+    for (int i = 0; i < berth_num; ++i) {
+        if (berths[i].ships.empty()) {
+            continue;
+        }
+        if (berths[i].transport_time + time >= 15000) {
+            while (!berths[i].ships.empty()) {
+                berths[i].ships.front()->force_to_go = true;
+                berths[i].ships.pop();
+            }
+            berths[i].can_be_used= false;
+        }
+    }
 }

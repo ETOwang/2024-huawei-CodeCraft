@@ -8,6 +8,7 @@
 using namespace std;
 class Ship {
 public:
+    int force_to_ship;
     //记录是否可以执行ship操作
     bool canShip;
     //记录是否可以执行go操作

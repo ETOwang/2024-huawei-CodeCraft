@@ -26,7 +26,8 @@ public:
     queue<Item *> goods;
     //泊位上的船
     queue<Ship*>ships;
-
+    bool is_chose;
+    bool can_be_used;
     friend bool operator < (const Berth& a,const Berth& b);
 
     //初始化
@@ -37,6 +38,9 @@ public:
     void addItem(Item *item);
 
     void update();
+
+    void lock();
+    void unlock();
 };
 
 
