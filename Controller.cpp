@@ -78,7 +78,7 @@ void Controller::dispatch(int time) {
         } else if (robots[i].task_type == TaskItem) {
             if (robots[i].route.empty()) {
                 robots[i].task_type = TaskBerth;
-                assignBerth(&robots[i]);
+                assignBerth_ex2(&robots[i]);
                 robots[i].route = game_map->getRoute(robots[i].pos, robots[i].berth_pos);
             } else {
                 // re-select item
@@ -259,7 +259,7 @@ void Controller::dispatch(int time) {
         }
     }
     //船舶需要船的引用
-    assignShip();
+    assignShip_ex2();
 }
 
 int Controller::assignBerth(Robot *robot) {
@@ -291,6 +291,45 @@ int Controller::assignBerth(Robot *robot) {
         }
     }
     return -1;
+}
+
+int Controller::assignBerth_ex2(Robot *robot) {
+    static int berth_dis[10][200][200];
+    static int prework = [&](){
+        memset(berth_dis, 0x3f, sizeof(berth_dis));
+        for (int berth_id = 0; berth_id < berth_num; berth_id++) {
+            queue<pair<Coord, int>> que;
+            auto push = [&berth_id, &que](Coord pos, int dis) {
+                berth_dis[berth_id][pos[0]][pos[1]] = dis;
+                que.push(make_pair(pos, dis));
+            };
+            push(berths[berth_id].pos, 0);
+            while (que.size()) {
+                auto top = que.front();
+                que.pop();
+                array<Coord, 4> diff{Coord{-1, 0}, Coord{+1, 0}, Coord{0, -1}, Coord{0, +1}};
+                for (auto it : diff) {
+                    Coord nw = top.first;
+                    Coord nxt = Coord{nw[0] + it[0], nw[1] + it[1]};
+                    if (game_map->isGround(nxt) && berth_dis[berth_id][nxt[0]][nxt[1]] > top.second + 1) {
+                        push(nxt, top.second + 1);
+                    }
+                }
+            }
+        }
+        return 0;
+    }();
+
+    pair<int, int> ans = {1000000, -1};
+    if (game_map->isGround(robot->pos)) {
+        for (int i = 0; i < berth_num; i++) {
+            pair<int, int> cur = make_pair(berth_dis[i][robot->pos[0]][robot->pos[1]], i);
+            if (cur.first < ans.first) {
+                ans = cur;
+            }
+        }
+    }
+    return ans.second;
 }
 
 bool Controller::isCollision(Robot *robot1, Robot *robot2) {
@@ -483,6 +522,63 @@ void Controller::assignShip() {
                     break;
                 }
             }
+        }
+    }
+}
+
+void Controller::assignShip_ex2() {
+    int count=0;
+    for (int i = 0; i < ships_num; ++i) {
+        if (ships[i].status == 1 && ships[i].target_id == -1) {
+            auto tryAssign = [&](int id) {
+                if (berths[id].ships.empty()) {
+                    count++;
+                    berths[id].ships.push(&ships[i]);
+                    ships[i].target_id = id;
+                    return true;
+                }
+                return false;
+            };
+            vector<pair<int, size_t>> vec;
+            for (int i = 0; i < berth_num; ++i) {
+                vec.push_back(make_pair(i, berths[i].goods.size()));
+            }
+            sort(vec.begin(), vec.end(), [](pair<int, size_t> aa, pair<int, size_t> bb) -> bool{
+                // with item_count decreasing
+                return aa.second > bb.second;
+            });
+            for (int i = 0; i < berth_num; ++i) {
+                if(tryAssign(vec[i].first)) goto finish;
+            }
+            finish:;
+        }
+    }
+    if(count==ships_num){
+        return;
+    }
+    for (int i = 0; i < ships_num; ++i) {
+        if (ships[i].status == 1 && ships[i].target_id == -1) {
+            auto tryAssignAgain = [&](int id) {
+                if (haveChanceToGo(id)) {
+                    berths[id].ships.push(&ships[i]);
+                    ships[i].target_id = id;
+                    return true;
+                }
+                return false;
+            };
+
+            vector<pair<int, size_t>> vec;
+            for (int i = 0; i < berth_num; ++i) {
+                vec.push_back(make_pair(i, berths[i].transport_time));
+            }
+            sort(vec.begin(), vec.end(), [](pair<int, size_t> aa, pair<int, size_t> bb) -> bool{
+                // with transport_time decreasing
+                return aa.second > bb.second;
+            });
+            for (int i = 0; i < berth_num; ++i) {
+                if(tryAssignAgain(vec[i].first)) goto finishAgain;
+            }
+            finishAgain:;
         }
     }
 }

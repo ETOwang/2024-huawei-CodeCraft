@@ -31,11 +31,13 @@ public:
     //主调度函数，为所有目标分配任务（如果需要）
     void dispatch(int time);
     int assignBerth(Robot* robot);
+    int assignBerth_ex2(Robot* robot);
     bool isCollision(Robot* robot1,Robot* robot2);
     bool isSwap(Robot* robot1,Robot* robot2);
     void preAssign();
     void preAssign_ex1();
     void assignShip();
+    void assignShip_ex2();
     bool haveChanceToGo(int berth);
 };
 
