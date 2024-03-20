@@ -556,6 +556,7 @@ void Controller::assignShip_ex2() {
     if(count==ships_num){
         return;
     }
+    
     for (int i = 0; i < ships_num; ++i) {
         if (ships[i].status == 1 && ships[i].target_id == -1) {
             auto tryAssignAgain = [&](int id) {

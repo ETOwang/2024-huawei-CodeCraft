@@ -39,6 +39,7 @@ public:
     void assignShip();
     void assignShip_ex2();
     bool haveChanceToGo(int berth);
+    
 };
 
 
