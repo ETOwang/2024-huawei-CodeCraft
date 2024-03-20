@@ -25,6 +25,8 @@ public:
     int item_count;
     //轮船容积
     int capacity;
+    //船是否到最快泊位
+    int flag;
     //初始化
     Ship();
 

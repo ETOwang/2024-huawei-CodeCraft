@@ -15,6 +15,11 @@ void Ship::move() {
     if(status != 1){
         return;
     }
+    if (flag){
+        ship(target_id);
+        go();
+        clear();
+    }
     if(force_to_ship!=-1){
         ship(target_id);
         force_to_ship=-1;
