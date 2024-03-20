@@ -23,6 +23,8 @@ public:
     int robot_num;
     int ships_num;
     int berth_num;
+    int berth_index;
+    map<int,int> used;
     Controller(Robot* robots,int robot_num,Map* map,Ship* ships,int ship_num,Berth* berths,int berth_num);
     Controller();
     //主调度函数，为所有目标分配任务（如果需要）
@@ -30,9 +32,12 @@ public:
     int assignBerth(Robot* robot);
     bool isCollision(Robot* robot1,Robot* robot2);
     bool isSwap(Robot* robot1,Robot* robot2);
+    void preAssign();
+    void preAssign_ex1();
     void assignShip();
     bool haveChanceToGo(int berth);
     void judgeTime(int time);
+    void moveToBerth();
 };
 
 

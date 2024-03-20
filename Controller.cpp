@@ -274,6 +274,7 @@ bool Controller::isSwap(Robot *robot1, Robot *robot2) {
 
 
 void Controller::assignShip() {
+    moveToBerth();
     for (int i = 0; i < ships_num; ++i) {
         if (ships[i].status == 1 ) {
             if(ships[i].capacity==ships[i].item_count){
@@ -330,6 +331,16 @@ void Controller::judgeTime(int time) {
                 berths[i].ships.pop();
             }
             berths[i].can_be_used= false;
+        }
+    }
+}
+
+void Controller::moveToBerth() {
+    for (int i = 0; i < ships_num; ++i) {
+        if (ships[i].item_count == ships[i].capacity &&
+            berths[ships[i].target_id].transport_time > 500 + berths[this->berth_index].transport_time){
+                ships[i].flag = 1;
+                ships[i].target_id = this->berth_index;
         }
     }
 }
