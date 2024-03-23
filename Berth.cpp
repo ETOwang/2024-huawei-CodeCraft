@@ -2,6 +2,7 @@
 // Created by 15461 on 2024/3/8.
 //
 
+#include <ctime>
 #include "Berth.h"
 
 Berth::Berth(int id, Coord pos, int transport_time, int loading_speed){
@@ -39,4 +40,11 @@ void Berth::update() {
 
 bool operator<(const Berth& a, const Berth& b) {
     return a.transport_time<b.transport_time;
+}
+
+Coord Berth::getPos() {
+    srand(time(0));  // 设置种子为当前时间
+    int randomx = rand() % 4;// 生成0到99之间的随机数
+    int randomy= rand()%4;
+    return {pos[0]+randomx,pos[1]+randomy};
 }

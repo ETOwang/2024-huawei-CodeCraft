@@ -62,7 +62,7 @@ void Controller::dispatch(int time) {
             if (berth == -1) {
                 continue;
             }
-            robots[i].berth_pos = berths[berth].pos;
+            robots[i].berth_pos = berths[berth].getPos();
             Item *best_item = nullptr;
             // find the best item
             best_item = getBestItem(robots[i].pos, robots[i].berth_pos);
@@ -78,11 +78,9 @@ void Controller::dispatch(int time) {
         } else if (robots[i].task_type == TaskItem) {
             if (robots[i].route.empty()) {
                 robots[i].task_type = TaskBerth;
-                assignBerth(&robots[i]);
                 robots[i].route = game_map->getRoute(robots[i].pos, robots[i].berth_pos);
             } else {
-                // re-select item
-#pragma message("re-select disabled.")/*
+                /*
                 if (time % 10 == i % 10) {
                     if (robots[i].cur_item == nullptr) continue;
                     Item* new_best_item = getBestItem(robots[i].pos, robots[i].berth_pos);
@@ -101,13 +99,13 @@ void Controller::dispatch(int time) {
                         robots[i].item_pos = new_best_item->pos;
                     }
                 }
-                //*/
+                */
             }
         } else {
             if (robots[i].route.empty()) {
                 robots[i].task_type = TaskIdle;
                 for (int j = 0; j < berth_num; ++j) {
-                    if (berths[j].pos == robots[i].berth_pos) {
+                    if ((berths[j].pos-robots[i].berth_pos)<=6) {
                         for (auto& item: game_map->items) {
                             if (item.pos == robots[i].item_pos) {
                                 berths[j].addItem(&item);
@@ -274,7 +272,7 @@ void Controller::dispatch(int time) {
 int Controller::assignBerth(Robot *robot) {
     if (robot->berth_pos[0] != -1) {
         for (int i = 0; i < berth_num; ++i) {
-            if (berths[i].pos == robot->berth_pos) {
+            if ((berths[i].pos - robot->berth_pos)<=6) {
                 if(used.count(i)){
                     return i;
                 }
@@ -324,48 +322,6 @@ bool Controller::isSwap(Robot *robot1, Robot *robot2) {
 }
 
 //泊位预分配
-void Controller::preAssign() {
-    double berthValue[berth_num];
-    int berthConnected[berth_num];
-    double berthDistance[berth_num];
-    //确定泊位与机器人的连通性
-    for (int i = 0; i < berth_num; ++i) {
-        for (int j = 0; j < robot_num; ++j) {
-            if (game_map->isCommunicated(berths[i].pos, robots[j].pos)) {
-                berthConnected[i]++;
-            }
-        }
-    }
-    //确定泊位间距离
-    for (int i = 0; i < berth_num; ++i) {
-        for (int j = 0; j < berth_num; ++j) {
-            berthDistance[i] += sqrt(
-                    pow((berths[i].pos[0] - berths[j].pos[0]), 2) + pow((berths[i].pos[1] - berths[j].pos[1]), 2));
-        }
-    }
-    for (int i = 0; i < berth_num; ++i) {
-        if (berthConnected[i] == 0) {
-            berthValue[i] = INT_MIN;
-            continue;
-        }
-        berthValue[i] = para1 * berthConnected[i] + para2 * berths[i].loading_speed -
-                        para3 * berths[i].transport_time + para4 * berthDistance[i];
-    }
-    for (int i = 0; i < 5; ++i) {
-        int temp = 0;
-        int max = INT_MIN;
-        for (int j = 0; j < berth_num; ++j) {
-            if (berthValue[j] > max) {
-                temp = j;
-                max = berthValue[j];
-            }
-        }
-        berthValue[temp] = INT_MIN;
-        used[temp] = 0;
-    }
-}
-
-
 void Controller::preAssign_ex1() {
     double mapValue[SIZE][SIZE];
     int    mapVis  [SIZE][SIZE];
@@ -416,7 +372,7 @@ void Controller::preAssign_ex1() {
             auto top = que.front();
             que.pop();
 
-            update(top.first, top.second, pow(berth->transport_time + 10, -0.3));
+            update(top.first, top.second, pow(berth->transport_time + 10, -1));
 
             array<Coord, 4> diff{Coord{-1, 0}, Coord{+1, 0}, Coord{0, -1}, Coord{0, +1}};
             for (auto it : diff) {

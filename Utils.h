@@ -9,6 +9,7 @@ using namespace std;
 
 using Coord = array<int, 2>;
 
+int operator - (Coord a,Coord b);
 static FILE *log_fp = fopen("log.txt","w");
 
 const int log_level = 2;
