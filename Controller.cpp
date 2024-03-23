@@ -201,7 +201,7 @@ void Controller::dispatch(int time) {
                         fprintf(log_fp, "Frame %d: isCollision(%d, %d)\nRobot %d: wait\n", time, now_i, now_j, now_i);
                     }
                 });
-                break;
+            //  break;
             }
             if (isSwap(&robots[now_i], &robots[now_j])) {
                 vector<Coord> ban, exit;
