@@ -213,6 +213,7 @@ vector<Coord> Map::getFreeSpace(Coord src, vector<Coord> ban, vector<Coord> exit
 vector<int> Map::getDisVector(Coord src, vector<Coord> targ){
     array<Coord, 4> diff = {Coord{+1, 0}, Coord{-1, 0}, Coord{0, +1}, Coord{0, -1}};
     static queue<Coord> que;
+    static vector<int> listener[SIZE][SIZE];
     //更新：唯一tag
     if(!__vis_uniq_tag){
         std::memset(__vis, 0, sizeof(__vis));
@@ -222,6 +223,15 @@ vector<int> Map::getDisVector(Coord src, vector<Coord> targ){
     //清空
     while(que.size()) que.pop();
 
+    {int id = 0;
+    for(auto it:targ){
+        listener[it[0]][it[1]].push_back(id++);
+    }}
+
+    vector<int> result;
+    int remain = targ.size();
+    result.resize(targ.size(), 1000000000);
+
 
     auto doPush = [](Coord pos){
         __vis[pos[0]][pos[1]] = __vis_uniq_tag;
@@ -230,7 +240,7 @@ vector<int> Map::getDisVector(Coord src, vector<Coord> targ){
     //BFS
     __dis[src[0]][src[1]] = 0;
     doPush(src);
-    while(que.size()){
+    while(que.size() && remain){
         Coord nw = que.front();
         que.pop();
         for(auto it:diff){
@@ -239,14 +249,15 @@ vector<int> Map::getDisVector(Coord src, vector<Coord> targ){
             if(__vis[nxt[0]][nxt[1]] == __vis_uniq_tag) continue;
             __dis[nxt[0]][nxt[1]] = __dis[nw[0]][nw[1]] + 1;
             __prev[nxt[0]][nxt[1]] = nw;
+            for(auto it:listener[nxt[0]][nxt[1]]){
+                result[it] = __dis[nxt[0]][nxt[1]];
+                remain--;
+            }
             doPush(nxt);
         }
     }
-    //回溯
-    vector<int> result;
     for(auto it:targ){
-        if(__vis[it[0]][it[1]] != __vis_uniq_tag) result.push_back(1000000000);
-        else result.push_back(__dis[it[0]][it[1]]);
+        listener[it[0]][it[1]].clear();
     }
     return result;
 }

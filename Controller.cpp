@@ -87,11 +87,12 @@ void Controller::dispatch(int time) {
                     if (robots[i].cur_item == nullptr) continue;
                     Item* new_best_item = getBestItem(robots[i].pos, robots[i].berth_pos);
                     if (new_best_item == nullptr) continue;
+                    int  dis_src = game_map->getDisVector(robots[i].pos,           vector<Coord>{robots[i].berth_pos})[0];
                     auto dis_old = game_map->getDisVector(robots[i].cur_item->pos, vector<Coord>{robots[i].berth_pos, robots[i].pos});
                     auto dis_new = game_map->getDisVector(new_best_item->pos,      vector<Coord>{robots[i].berth_pos, robots[i].pos});
-                    double eval_old = robots[i].cur_item->value / pow((double) dis_old[0] + dis_old[1], 1);
-                    double eval_new = new_best_item->value      / pow((double) dis_new[0] + dis_new[1], 1);
-                    if (eval_old + 0.001 < eval_new) {
+                    double eval_old = robots[i].cur_item->value / pow((double) dis_old[0] + dis_old[1] + dis_src, 1);
+                    double eval_new = new_best_item->value      / pow((double) dis_new[0] + dis_new[1] + dis_src, 1);
+                    if (eval_old + 0.1 < eval_new) {
                         new_best_item -> lock();
                         robots[i].cur_item -> unlock();
                     //  robots[i].cur_item = nullptr; // this line rejects future update
