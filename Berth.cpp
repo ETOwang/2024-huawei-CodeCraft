@@ -43,7 +43,7 @@ bool operator<(const Berth& a, const Berth& b) {
 }
 
 Coord Berth::getPos() {
-    srand(time(0));  // 设置种子为当前时间
+//  srand(time(0));  // 设置种子为当前时间
     int randomx = rand() % 4;// 生成0到99之间的随机数
     int randomy= rand()%4;
     return {pos[0]+randomx,pos[1]+randomy};

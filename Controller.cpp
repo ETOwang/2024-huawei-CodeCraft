@@ -139,48 +139,89 @@ void Controller::dispatch(int time) {
 //  random_shuffle(random_order.begin(), random_order.end());
     vector<int> random_order_tmp, deg_tmp;
     queue<int> que_tmp;
-    for (int i = 0; i < robot_num; ++i) {
-        array<Coord, 4> diff = {Coord{-1, 0}, Coord{1, 0}, Coord{0, -1}, Coord{0, 1}};
+    vector<int> ban_tmp;
+    ban_tmp.resize(10, 1);
+    auto calc_deg = [&](int id){
         int deg = 0;
+        array<Coord, 4> diff = {Coord{-1, 0}, Coord{1, 0}, Coord{0, -1}, Coord{0, 1}};
         for (auto it: diff) {
-            Coord nw = robots[i].pos;
-            Coord to = Coord{nw[0] + it[0], nw[1] + it[1]};
-            int add = 1;
-            if (!game_map->isGround(to)) add = 0;
+            Coord nw = robots[id].pos;
+            Coord toi = Coord{nw[0] + it[0], nw[1] + it[1]};
+            if (!game_map->isGround(toi)) continue;
             for (int j = 0; j < robot_num; ++j) {
-                if (robots[j].pos == to) add = 0;
+                if (robots[j].pos == toi && ban_tmp[j]) goto FAIL0;
             }
-            deg += add;
+            for (auto jt: diff) {
+                int add = 1;
+                Coord toj = Coord{toi[0] + jt[0], toi[1] + jt[1]};
+                if (toj == nw) continue;
+                if (!game_map->isGround(toj)) continue;
+                for (int j = 0; j < robot_num; ++j) {
+                    if (robots[j].pos == toj && ban_tmp[j]) add = 0;
+                }
+                deg += add;
+            }
+            FAIL0:;
         }
+        return deg;
+    };
+    for (int i = 0; i < robot_num; ++i) {
+        // deg[x] = #(pos | pos is reachable, dis(pos) == 2)
+        int deg = calc_deg(i);
         deg_tmp.push_back(deg);
         if (deg) {
             que_tmp.push(i);
         }
     }
+//  for (int i = 0; i < robot_num; ++i) {
+//      fprintf(log_fp, "!! deg[%d] = %d\n", i, deg_tmp[i]);
+//  }
     while (!que_tmp.empty()) {
         int nwid = que_tmp.front();
         que_tmp.pop();
+        ban_tmp[nwid] = 0;
         random_order_tmp.push_back(nwid);
         array<Coord, 4> diff = {Coord{-1, 0}, Coord{1, 0}, Coord{0, -1}, Coord{0, 1}};
         int deg = 0;
         for (auto it: diff) {
             Coord nw = robots[nwid].pos;
-            Coord to = Coord{nw[0] + it[0], nw[1] + it[1]};
+            Coord toi = Coord{nw[0] + it[0], nw[1] + it[1]};
+            if (!game_map->isGround(toi)) continue;
             for (int j = 0; j < robot_num; ++j) {
-                if (robots[j].pos == to) {
-                    if (!deg_tmp[j]) {
+                if (robots[j].pos == toi && ban_tmp[j]) {
+                    int res = calc_deg(j);
+                    // re_calculate deg[j]
+                    if (!deg_tmp[j] && res) {
                         que_tmp.push(j);
                     }
-                    deg_tmp[j]++;
+                    deg_tmp[j] = res;
+                    goto FAIL1;
                 }
             }
+            for (auto jt: diff) {
+                Coord toj = Coord{toi[0] + jt[0], toi[1] + jt[1]};
+                if (toj == nw) continue;
+                if (!game_map->isGround(toj)) continue;
+                for (int j = 0; j < robot_num; ++j) {
+                    if (robots[j].pos == toj && ban_tmp[j]) {
+                        int res = calc_deg(j);
+                        // re_calculate deg[j]
+                        if (!deg_tmp[j] && res) {
+                            que_tmp.push(j);
+                        }
+                        deg_tmp[j] = res;
+                    }
+                }
+            }
+            FAIL1:; // block by another robot
         }
     }
-    for (int i = 0; i < robot_num; ++i) {
-        if (!deg_tmp[i]) {
-            que_tmp.push(i);
-        }
-    }
+//  for (int i = 0; i < robot_num; ++i) {
+//      if (!deg_tmp[i]) {
+//          fprintf(log_fp, "?? push %d\n", i);
+//          random_order_tmp.push_back(i);
+//      }
+//  }
 //  fprintf(log_fp, "random_order_tmp.size() == %d\n", random_order_tmp.size());
 //  assert(random_order_tmp.size() == 10);
     reverse(random_order_tmp.begin(), random_order_tmp.end());
@@ -205,7 +246,7 @@ void Controller::dispatch(int time) {
                 robots[now_i].route.push_back(robots[now_i].pos);
                 ({
                     if (shouldLog(2)) {
-                        fprintf(log_fp, "    isCollision(%d, %d)\n    Robot %d: wait\n", time, now_i, now_j, now_i);
+                        fprintf(log_fp, "    isCollision(%d, %d)\n    Robot %d: wait\n", now_i, now_j, now_i);
                     }
                 });
             //  break;
@@ -216,6 +257,7 @@ void Controller::dispatch(int time) {
                 for (int k = 0; k <= i; k++) {
                     int now_k = random_order[k];
                     ban.push_back(robots[now_k].pos);
+                    if (robots[now_k].route.size()) ban.push_back(robots[now_k].route[robots[now_k].route.size() - 1]);
                     exit.push_back(robots[now_k].pos);
                 }
                 // 避开要避让的机器人将要走的路
@@ -233,9 +275,9 @@ void Controller::dispatch(int time) {
                 for (auto it: result) {
                     robots[now_i].route.push_back(it);
                 }
-                ({
+                /*({
                     if (shouldLog(2)) {
-                        fprintf(log_fp, "    isSwap(%d, %d)\n    Robot %d:\n", time, now_i, now_j, now_i);
+                        fprintf(log_fp, "    isSwap(%d, %d)\n    Robot %d:\n", now_i, now_j, now_i);
 
                         fprintf(log_fp, "    ban = {");
                         for (auto it: ban) fprintf(log_fp, "(%d, %d), ", it[0], it[1]);
@@ -247,10 +289,9 @@ void Controller::dispatch(int time) {
 
                         fprintf(log_fp, "    add path = {");
                         for (auto it: result) fprintf(log_fp, "(%d, %d), ", it[0], it[1]);
-                        for (auto it: result) fprintf(log_fp, "(%d, %d), ", it[0], it[1]);
                         fprintf(log_fp, "}\n");
                     }
-                });
+                });*/
                 // 尝试等一下来避免卡死
                 //  robots[now_j].route.push_back(robots[now_j].pos);
                 break;
@@ -394,7 +435,7 @@ void Controller::preAssign_ex1() {
     for (int ms = (1 << BERTH_ASSIGN) - 1; ms < 1 << BERTH_COUNT; ({int x = ms & -ms, y = ms + x; ms = ((ms&~y) / x >> 1) | y;})) {
         // ms is {subset | size = 5}
         debug_count ++;
-#pragma message("randomly discard certain conbinattions to get faster (maybe unnecessary)")
+// #pragma message("randomly discard certain conbinattions to get faster (maybe unnecessary)")
         if ((rand() & 0x8) == 0x8) continue;
     //  cerr << debug_count << "/" << debug_max_count << endl;
 

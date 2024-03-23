@@ -20,7 +20,7 @@ const int log_level = 2;
 bool shouldLog(int x);
 
 static random_device r_d;
-// static mt19937 mt199(r_d());
-static mt19937 mt199(1);
+static mt19937 mt199(r_d());
+// static mt19937 mt199(1);
 
 #endif //INC_24_HUAWEI_UTILS_H
