@@ -293,7 +293,7 @@ void Controller::assignShip() {
                 }
             } else{
                 if(berths[ships[i].target_id].goods.empty()){
-                    int max=0;
+                    int max=TRANSPORT/EXPECTED;
                     int index=ships[i].target_id;
                     for (int j = 0; j < berth_num; ++j) {
                         if(!haveChanceToGo(j)||berths[j].goods.empty()||berths[j].is_chose||!berths[j].can_be_used){
