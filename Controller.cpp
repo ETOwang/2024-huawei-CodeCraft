@@ -190,7 +190,15 @@ void Controller::dispatch(int time) {
     for (int i = 0; i < robot_num; ++i) {
         random_order[i] = random_order_tmp[i];
     }
-
+    ({
+        if (shouldLog(2)) {
+            fprintf(log_fp, "%d: {", time);
+            for (int i = 0; i < 10; i++) {
+                fprintf(log_fp, "%d%c ", random_order[i], ",}"[i == 9]);
+            }
+            fprintf(log_fp, "\n");
+        }
+    });
     for (int i = 0; i < robot_num; ++i) {
         int now_i = random_order[i];
         for (int j = 0; j < i; ++j) {
@@ -199,7 +207,7 @@ void Controller::dispatch(int time) {
                 robots[now_i].route.push_back(robots[now_i].pos);
                 ({
                     if (shouldLog(2)) {
-                        fprintf(log_fp, "Frame %d: isCollision(%d, %d)\nRobot %d: wait\n", time, now_i, now_j, now_i);
+                        fprintf(log_fp, "    isCollision(%d, %d)\n    Robot %d: wait\n", time, now_i, now_j, now_i);
                     }
                 });
             //  break;
@@ -229,17 +237,17 @@ void Controller::dispatch(int time) {
                 }
                 ({
                     if (shouldLog(2)) {
-                        fprintf(log_fp, "Frame %d: isSwap(%d, %d)\nRobot %d:\n", time, now_i, now_j, now_i);
+                        fprintf(log_fp, "    isSwap(%d, %d)\n    Robot %d:\n", time, now_i, now_j, now_i);
 
-                        fprintf(log_fp, "ban = {");
+                        fprintf(log_fp, "    ban = {");
                         for (auto it: ban) fprintf(log_fp, "(%d, %d), ", it[0], it[1]);
                         fprintf(log_fp, "}\n");
 
-                        fprintf(log_fp, "exit = {");
+                        fprintf(log_fp, "    exit = {");
                         for (auto it: exit) fprintf(log_fp, "(%d, %d), ", it[0], it[1]);
                         fprintf(log_fp, "}\n");
 
-                        fprintf(log_fp, "add path = {");
+                        fprintf(log_fp, "    add path = {");
                         for (auto it: result) fprintf(log_fp, "(%d, %d), ", it[0], it[1]);
                         for (auto it: result) fprintf(log_fp, "(%d, %d), ", it[0], it[1]);
                         fprintf(log_fp, "}\n");

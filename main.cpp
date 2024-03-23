@@ -110,6 +110,7 @@ void finish() {
  */
 int main() {
 //  srand(time(0));
+    srand(0);
     //流程：输入，调度，移动
     //freopen("D:\\24_huawei_com\\WindowsRelease\\record\\test.txt", "r", stdin);
     Init();
