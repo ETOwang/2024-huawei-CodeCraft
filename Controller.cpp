@@ -62,7 +62,7 @@ void Controller::dispatch(int time) {
             if (berth == -1) {
                 continue;
             }
-            robots[i].berth_pos = berths[berth].pos;
+            robots[i].berth_pos = berths[berth].getPos();
             Item *best_item = nullptr;
             // find the best item
             best_item = getBestItem(robots[i].pos, robots[i].berth_pos);
@@ -78,7 +78,6 @@ void Controller::dispatch(int time) {
         } else if (robots[i].task_type == TaskItem) {
             if (robots[i].route.empty()) {
                 robots[i].task_type = TaskBerth;
-                assignBerth(&robots[i]);
                 robots[i].route = game_map->getRoute(robots[i].pos, robots[i].berth_pos);
             } else {
                 /*
@@ -106,7 +105,7 @@ void Controller::dispatch(int time) {
             if (robots[i].route.empty()) {
                 robots[i].task_type = TaskIdle;
                 for (int j = 0; j < berth_num; ++j) {
-                    if (berths[j].pos == robots[i].berth_pos) {
+                    if ((berths[j].pos-robots[i].berth_pos)<=6) {
                         for (auto& item: game_map->items) {
                             if (item.pos == robots[i].item_pos) {
                                 berths[j].addItem(&item);
@@ -265,7 +264,7 @@ void Controller::dispatch(int time) {
 int Controller::assignBerth(Robot *robot) {
     if (robot->berth_pos[0] != -1) {
         for (int i = 0; i < berth_num; ++i) {
-            if (berths[i].pos == robot->berth_pos) {
+            if ((berths[i].pos - robot->berth_pos)<=6) {
                 if(used.count(i)){
                     return i;
                 }

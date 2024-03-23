@@ -37,6 +37,7 @@ public:
     void addItem(Item *item);
 
     void update();
+    Coord getPos();
 };
 
 
